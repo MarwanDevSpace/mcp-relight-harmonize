@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "mcp-relight-harmonize": {
+      "command": "node",
+      "args": [
+        "c:/Users/DKurdistan/Desktop/mcp-relight-harmonize/dist/index.js"
+      ],
+      "env": {
+        "OUTPUT_CACHE_DIR": "./generated_variations"
+      }
+    }
+  }
+}

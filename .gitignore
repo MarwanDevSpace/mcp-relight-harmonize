@@ -1,0 +1,6 @@
+node_modules/
+generated_variations/
+*.log
+.DS_Store
+dist/**/*.map
+temp_test.png

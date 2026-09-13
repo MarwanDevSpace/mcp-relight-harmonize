@@ -1,0 +1,62 @@
+{
+  "name": "mcp-relight-harmonize",
+  "version": "1.0.0",
+  "description": "Professional TypeScript Model Context Protocol (MCP) server & agent skill for optical profiling, physical relighting, composite harmonization, and diffusion prompt synthesis (GPT Image & Nano Banana).",
+  "author": "MarwanDevSpace <dev@marwandevspace.io>",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "bin": {
+    "mcp-relight-harmonize": "dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MarwanDevSpace/mcp-relight-harmonize.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MarwanDevSpace/mcp-relight-harmonize/issues"
+  },
+  "homepage": "https://github.com/MarwanDevSpace/mcp-relight-harmonize#readme",
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "antigravity",
+    "relight",
+    "harmonize",
+    "optical-analysis",
+    "gpt-image",
+    "nano-banana",
+    "marwandevspace"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "verify": "node dist/index.js --verify"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1",
+    "jpeg-js": "^0.4.4",
+    "pngjs": "^7.0.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.8",
+    "@types/pngjs": "^6.0.5",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.7"
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "MASTER.md",
+    "mcp_config.json",
+    ".agents",
+    "docs",
+    "README.md"
+  ]
+}
