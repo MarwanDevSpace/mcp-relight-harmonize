@@ -31,7 +31,7 @@ export function generateRelightVariationsTool(
         },
         nextActions: [
           "Review generated variation files to inspect aesthetic illumination.",
-          "Use 'synthesize_diffusion_prompt' for GPT Image or Nano Banana generative enhancement.",
+          "Use 'synthesize_diffusion_prompt' for your Image Generator (GEMINI Nano Banana / Universal) or trigger 'generate_image'.",
         ],
       }
     );

@@ -1,22 +1,23 @@
-# Diffusion Prompt Engineering Guide: GPT Image & Nano Banana
+# Image Generator Prompt Engineering Guide: Universal & GEMINI Nano Banana
 
-This document maps physical optical metrics into specialized prompt directives for **GPT Image** and **Nano Banana**.
+This document maps physical optical metrics into specialized prompt directives compatible with **Any Image Generator Model**, with specific optimization for **GEMINI Nano Banana** in **Google Antigravity**.
 
 ---
 
-## 1. Target Engine Overview
+## 1. Target Engine Paradigms
 
-| Parameter | GPT Image (DALL-E 3 / GPT-4o) | Nano Banana (Optical Inpainting Engine) |
+| Parameter | Universal Image Generator (Natural Studio) | GEMINI Nano Banana (Optical Shaders) |
 |---|---|---|
-| **Prompt Paradigm** | Natural language, photographic directives | Dense tokenized optical descriptors |
+| **Prompt Paradigm** | Natural language, photographic studio directives | Dense tokenized optical descriptors & shaders |
 | **Optics Formulation** | 85mm prime lens f/2.0, authentic falloff | Micro-surface specular roughness, normal angle |
 | **Contact Shadows** | "physically-based contact shadows at base" | "ground contact shadow, ambient occlusion caster" |
 | **Volumetrics** | "subtle volumetric dust rays in air" | "volumetric raytraced bounce" |
 | **Denoising Default** | `0.38` | `0.38` (subtle) to `0.42` (dramatic) |
+| **Recommended Environment** | Any diffusion generator | **Google Antigravity (`generate_image`)** |
 
 ---
 
-## 2. GPT Image Prompt Architecture
+## 2. Universal Image Generator Prompt Architecture
 
 ### Enhancement Prompt Template:
 ```text
@@ -34,7 +35,7 @@ authentic photometric falloff, [User Intent].
 
 ---
 
-## 3. Nano Banana Prompt Architecture
+## 3. GEMINI Nano Banana Prompt Architecture
 
 ### Enhancement Prompt Template:
 ```text
@@ -50,7 +51,8 @@ denoising 0.38, light_azimuth_[Azimuth]deg, [User Intent]
 ```
 
 ### Recommended Parameters:
-- `model`: `"nano-banana-optical-v1"`
+- `model`: `"gemini-nano-banana"`
+- `target_environment`: `"Google Antigravity"`
 - `denoising_strength`: `0.38`
 - `guidance_scale`: `4.5`
 - `steps`: `32`

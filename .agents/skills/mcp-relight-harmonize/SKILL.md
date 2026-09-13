@@ -1,40 +1,60 @@
 ---
 name: mcp-relight-harmonize
 description: >-
-  Execute end-to-end optical image profiling, physically-grounded relighting variations, contact-aware composite harmonization,
-  and precision diffusion prompt synthesis targeting GPT Image and Nano Banana. Use when inspecting lighting angles or color temperature,
+  Execute end-to-end 6-layer optical image profiling, physically-grounded relighting variations, contact-aware composite harmonization,
+  and precision diffusion prompt synthesis compatible with Any Image Generator Model (optimized for GEMINI Nano Banana in Antigravity). Use when inspecting lighting angles or color temperature,
   generating alternative illumination schemes (Ambient, Dramatic, Rim, Mood), blending foreground cutouts into backgrounds,
   or drafting photorealistic prompts.
 ---
 
 # `mcp-relight-harmonize` Skill Specification
 
-Created by **MarwanDevSpace**, this skill empowers the agent to execute physical lighting analysis, generate relighted variations, perform seamless composite harmonization, and craft production diffusion prompts tailored for **GPT Image** and **Nano Banana**.
+Created by **MarwanDevSpace**, this skill empowers the agent to execute physical lighting analysis, decompose images into 6 visual layers in `Layers/`, generate relighted variations, perform seamless composite harmonization, and craft production diffusion prompts tailored for **Any Image Generator Model** (specifically optimized for **GEMINI Nano Banana** in **Google Antigravity**).
+
+> [!NOTE]
+> **Antigravity Recommended**: This skill is optimized to work with **any Image Generator**, and is **strongly preferred inside Google Antigravity** where native desktop image generation (`generate_image`) with **GEMINI Nano Banana** can immediately execute the desired modifications.
 
 ---
 
 ## 1. When to Activate This Skill
 
 Activate this skill whenever the user asks to:
-1. **Analyze an image's lighting:** Determine Correlated Color Temperature (CCT in Kelvin), lighting direction vector, azimuth/elevation angles, contrast ratio, or surface roughness.
-2. **Relight an image:** Produce 4 physically-grounded lighting variants (`Ambient`, `Dramatic`, `Rim`, `Mood`).
+1. **Decompose & Analyze an image's lighting:** Generate 6 analytical layers into `Layers/` and determine CCT (Kelvin), lighting direction, azimuth/elevation angles, contrast ratio, or surface roughness.
+2. **Relight an image:** Produce physically-grounded lighting variants (`Ambient`, `Dramatic`, `Rim`, `Mood`).
 3. **Composite/Harmonize an image:** Place a cutout foreground onto a background scene, matching ambient color statistics and adding physically grounded contact shadows.
-4. **Generate `/prompt` for diffusion:** Create exact physical lighting and detail enhancement prompts for **GPT Image** (DALL-E 3 / GPT-4o) and **Nano Banana** with calibrated denoising strength (`0.35 - 0.45`).
+4. **Generate `/prompt` for diffusion:** Create exact physical lighting and detail enhancement prompts for **Any Image Generator** / **GEMINI Nano Banana** with calibrated denoising strength (`0.35 - 0.45`).
 
 ---
 
 ## 2. Core Workflows & Execution Procedures
 
-### Workflow A: Optical Profiling
+### Workflow A: Optical Profiling & 6-Layer Decomposition
 Before modifying or inpainting an image, extract its optical geometry:
-1. Call tool `analyze_optical_profile({ image_path: "<path_to_image>" })`.
-2. Review the resulting `OpticalProfileReport`:
-   - **`colorTemperatureKelvin`**: e.g., 3200K tungsten vs 6500K daylight.
-   - **`lightingAngles`**: `azimuthDeg` (horizontal angle) and `elevationDeg` (vertical angle).
+1. Call tool `analyze_optical_profile({ image_path: "<path_to_image>", extract_layers: true })` or run:
+   `python scripts/extract_layers.py --image <path> [--intent "<intent>"]`
+2. Python decomposes the image into 6 visual layers inside `Layers/`:
+   - `01_highlights.png` (Highlights / Specular Zones)
+   - `02_shadows.png` (Shadows / Low-Key Zones)
+   - `03_ambient_occlusion.png` (Deep Ambient Occlusion & Ground Contact)
+   - `04_edges.png` (Sobel High-Frequency Contours)
+   - `05_depth_normals.png` (3D Surface Normal Gradient Field)
+   - `06_chroma_saturation.png` (Chrominance & Saturation Distribution)
+3. Review the resulting `OpticalProfileReport` and dynamic `Layer.md`:
+   - **`colorTemperatureKelvin`**: e.g., 3200K tungsten vs 5500K daylight.
+   - **`lightingAngles`**: `azimuthDeg` and `elevationDeg`.
    - **`luminanceDynamics.contrastRatio`**: Key-to-fill ratio.
-3. Use these physical parameters to inform subsequent relighting or prompt writing.
+   - **`aoCoveragePct`**: Contact shadow presence vs floating subject.
+4. Store findings in memory / CoT to guide subsequent generation.
 
-### Workflow B: Generating 4 Relit Variations
+### Workflow B: Interactive Decision & Direct Image Generation
+1. Address the user with the mandatory prompt:
+   **"ماذا تريد من تعديل؟"**
+   accompanied by tailored recommendations derived strictly from the image's detected optical profile.
+2. Upon user selection or intent:
+   - Synthesize the photorealistic prompt for the **Image Generator**.
+   - **Inside Google Antigravity**: Directly trigger `generate_image` using the synthesized prompt to produce the modified image on the spot!
+
+### Workflow C: Physical Relighting Variations
 To produce visual lighting alternatives on disk:
 1. Call tool `generate_relight_variations({ image_path: "<path_to_image>", target_lighting: "All" })`.
 2. The tool produces 4 files in `OUTPUT_CACHE_DIR`:
@@ -42,61 +62,36 @@ To produce visual lighting alternatives on disk:
    - `*_relight_dramatic.png` (-1.5 EV shadow crush, top-left directional chiaroscuro).
    - `*_relight_rim.png` (+1.2 EV high-pass edge halo, cool cyan perimeter).
    - `*_relight_mood.png` (3200K tungsten amber shift, highlight bloom diffusion).
-3. Present the resulting artifact paths to the user with their mathematical adjustment logs.
 
-### Workflow C: Composite Harmonization
+### Workflow D: Composite Harmonization
 To blend a subject or product into a new background:
 1. Call tool `harmonize_composite({ foreground_path: "<fg>", background_path: "<bg>", blend_mode: "seamless" })`.
-2. The engine executes:
-   - **Reinhard Color Statistics Transfer:** Normalizes foreground means and deviations to match background in Ruderman $l\alpha\beta$ space.
-   - **Contact Shadow Synthesis:** Projects an elliptical Gaussian shadow beneath the subject's lowest contact plane.
-   - **Smooth Blending:** Eliminates boundary halo artifacts.
-3. Return the composite image file path.
+2. The engine executes Reinhard Color Statistics Transfer in Ruderman $l\alpha\beta$ space, applies Ground Contact Shadows, and smooths boundaries.
 
-### Workflow D: Diffusion Prompt Synthesis (`/prompt`)
+### Workflow E: Diffusion Prompt Synthesis (`/prompt`)
 To craft targeted generative prompts:
-1. Call tool `synthesize_diffusion_prompt({ image_path: "<path>", user_intent: "<intent>", target_model: "gpt_image" | "nano_banana" })`.
-2. Extract the two specialized prompts:
-   - **`enhancementPrompt`**: Upgrades micro-surface textures, pore fidelity, lens sharpness, and subsurface scattering.
-   - **`relightingPrompt`**: Injects exact lighting angles, Kelvin temperature, volumetric dust rays, and contact shadows.
-3. For **GPT Image**: outputs natural descriptive photography directives (85mm f/2.0, physical illumination).
-4. For **Nano Banana**: outputs dense optical tokens (roughness index, raytraced bounce, ground contact shadow, azimuth).
+1. Call tool `synthesize_diffusion_prompt({ image_path: "<path>", user_intent: "<intent>", target_model: "universal" | "nano_banana" })`.
+2. Extract the specialized prompts:
+   - **`enhancementPrompt`**: Micro-surface textures, pore fidelity, lens sharpness, and subsurface scattering.
+   - **`relightingPrompt`**: Exact lighting angles, Kelvin temperature, volumetric dust rays, and contact shadows.
 
-### Workflow E: Output Cache Inspection
-To inspect or discover previously generated relight variations or composite outputs:
-1. Call tool `list_cached_variations({ cache_dir?: "<path>" })`.
-2. Inspect `files` list containing filename, full path, byte size, and last modified timestamp for all output artifacts.
-
-### Workflow F: Dynamic 6-Layer Decomposition & Interactive Modification Loop
-For comprehensive optical intelligence and guided generation:
-1. Call tool `analyze_optical_profile({ image_path: "<path>", extract_layers: true, user_intent?: "<intent>" })` or execute Python script:
-   `python scripts/extract_layers.py --image <path> [--intent "<intent>"]`
-2. The engine generates 6 visual analytical layers into `Layers/`:
-   - `01_highlights.png` (Highlights / Specular Zones)
-   - `02_shadows.png` (Shadows / Low-Key Zones)
-   - `03_ambient_occlusion.png` (Deep Ambient Occlusion & Contact Umbra)
-   - `04_edges.png` (Sobel High-Frequency Contours)
-   - `05_depth_normals.png` (3D Surface Normal Gradient Field)
-   - `06_chroma_saturation.png` (Chrominance & Saturation Distribution)
-3. Examine each layer and retain optical findings in memory / CoT.
-4. Present the dynamic `Layer.md` and address the user with the mandatory decision prompt:
-   **"ماذا تريد من تعديل؟"**
-   presenting dynamically generated options tailored specifically to the image's detected optical profile.
-5. Upon the user's decision, immediately formulate the target prompt for **GPT Image** or **Nano Banana**. If the client/agent has an embedded image generator (`generate_image`), trigger generation immediately!
+### Workflow F: Output Cache Inspection
+1. Call tool `list_cached_variations({ cache_dir?: "<path>" })` to inspect generated artifacts.
 
 ---
 
 ## 3. Reference Documentation
 
-For in-depth mathematical formulations and model guides:
 - [Optical Mathematics & Formulations](./references/optical_math.md)
 - [Tool Orchestration & Chaining Standards](./references/tool_orchestration.md)
-- [GPT Image & Nano Banana Guide](./references/diffusion_guide.md)
+- [Image Generator & GEMINI Nano Banana Guide](./references/diffusion_guide.md)
 
 ---
 
 ## 4. Executable Helper Scripts
 
+- Execute 6-layer optical extraction:
+  `python scripts/extract_layers.py --image <image_path> [--intent "<intent>"]`
 - Execute full end-to-end analysis & prompt synthesis from CLI:
   `node .agents/skills/mcp-relight-harmonize/scripts/run_pipeline.js <image_path>`
 - Verify server health and tool registration:

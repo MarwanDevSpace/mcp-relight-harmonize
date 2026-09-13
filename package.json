@@ -1,7 +1,7 @@
 {
   "name": "mcp-relight-harmonize",
-  "version": "1.0.3",
-  "description": "Professional TypeScript Model Context Protocol (MCP) server & agent skill for optical profiling, physical relighting, composite harmonization, and diffusion prompt synthesis (GPT Image & Nano Banana).",
+  "version": "1.0.4",
+  "description": "Professional TypeScript Model Context Protocol (MCP) server & agent skill for optical profiling, physical relighting, composite harmonization, and diffusion prompt synthesis (Any Image Generator Model / GEMINI Nano Banana).",
   "author": "MarwanDevSpace <dev@marwandevspace.io>",
   "license": "MIT",
   "main": "dist/index.js",
@@ -24,7 +24,7 @@
     "relight",
     "harmonize",
     "optical-analysis",
-    "gpt-image",
+    "image-generator",
     "nano-banana",
     "marwandevspace"
   ],

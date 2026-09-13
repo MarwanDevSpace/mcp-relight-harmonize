@@ -66,11 +66,11 @@ describe("MCP Server Tool Contracts & Envelopes", () => {
     expect(env.evidence.artifacts?.length).toBe(1);
   });
 
-  it("synthesize_diffusion_prompt returns GPT Image envelope", () => {
-    const env = synthesizeDiffusionPromptTool(fixtures.bgPath, "sunset", "gpt_image");
+  it("synthesize_diffusion_prompt returns Universal Image Generator envelope", () => {
+    const env = synthesizeDiffusionPromptTool(fixtures.bgPath, "sunset", "universal");
 
     expect(env.status).toBe("success");
-    expect(env.data.targetModel).toBe("GPT Image");
+    expect(env.data.targetModel).toBe("Universal Image Generator");
     expect(env.data.enhancementPrompt).toBeDefined();
     expect(env.data.relightingPrompt).toBeDefined();
   });
@@ -89,7 +89,7 @@ describe("MCP Server Tool Contracts & Envelopes", () => {
 
     expect(data.presets).toBeDefined();
     expect(data.presets.length).toBe(4);
-    expect(data.target_generators).toContain("GPT Image");
-    expect(data.target_generators).toContain("Nano Banana");
+    expect(data.target_generators).toContain("Universal Image Generator");
+    expect(data.target_generators).toContain("GEMINI Nano Banana");
   });
 });

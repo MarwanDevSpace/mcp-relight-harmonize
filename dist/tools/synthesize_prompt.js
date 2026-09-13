@@ -8,7 +8,7 @@ const crypto_1 = __importDefault(require("crypto"));
 const envelope_1 = require("../core/envelope");
 const errors_1 = require("../core/errors");
 const prompt_synthesizer_1 = require("../domain/prompt_synthesizer");
-function synthesizeDiffusionPromptTool(imagePath, userIntent = "", targetModel = "gpt_image") {
+function synthesizeDiffusionPromptTool(imagePath, userIntent = "", targetModel = "universal") {
     try {
         const result = (0, prompt_synthesizer_1.synthesizeDiffusionPromptImpl)(imagePath, userIntent, targetModel);
         const hash = crypto_1.default

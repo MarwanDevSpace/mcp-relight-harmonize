@@ -10,7 +10,7 @@ Extracts 6 analytical visual layers into Layers/ directory:
   6. 06_chroma_saturation.png  - طبقة الألوان والتشبع والبكسلات (Chroma & Saturation Distribution)
 
 Generates dynamic, on-demand Layer.md reports and physical generative prompts
-specifically targeting GPT Image and Nano Banana without static boilerplate.
+specifically targeting Universal Image Generator and Nano Banana without static boilerplate.
 """
 
 import os
@@ -119,7 +119,7 @@ def build_dynamic_diagnostics(
 
     # Dynamic Generative Prompts tailored to exact metrics
     intent_clause = f", {user_intent}" if user_intent else ""
-    gpt_prompt = (
+    universal_prompt = (
         f"A master-quality studio photograph{intent_clause}, calibrated optical lighting at {round(azimuth_deg)}° azimuth "
         f"and {round(elevation_deg)}° elevation, authentic {round(cct_kelvin)}K color temperature balance, "
         f"physically-grounded ambient occlusion contact shadows firmly anchoring the base plane, "
@@ -138,7 +138,7 @@ def build_dynamic_diagnostics(
         "thermalDescription": thermal_desc,
         "findings": findings,
         "tailoredOptions": tailored_options,
-        "gptImagePrompt": gpt_prompt,
+        "universalImagePrompt": universal_prompt,
         "nanoBananaPrompt": nano_banana_prompt,
     }
 
@@ -353,13 +353,15 @@ def extract_layers(image_path: str, output_dir: str = "Layers", user_intent: Opt
 
 ---
 
-## 3. التوجيه التوليدي المخصص (Calibrated Prompts for Generative Engines)
+## 3. التوجيه التوليدي المخصص (Calibrated Prompts for Image Generators)
 
-### أ. موجه GPT Image (DALL-E 3 / GPT-4o Vision):
-> "{diag['gptImagePrompt']}"
+### أ. النمط الوصفي الاستوديوي (Any Image Generator Model):
+> "{diag['universalImagePrompt']}"
 
-### ب. موجه Nano Banana (High-Density Optical Tokenizer):
+### ب. نمط الشيدر الضوئي المكثف (GEMINI Nano Banana - Antigravity):
 > "{diag['nanoBananaPrompt']}"
+
+> 💡 **ملاحظة**: هذا التوجيه متوافق مع **أي Image Generator Model**، ويُفضل ويُوصى بشدة باستخدامه داخل **Google Antigravity** لتطبيق التعديل المباشر عبر أداة `generate_image` ومحرك **GEMINI Nano Banana**!
 
 ---
 

@@ -46,7 +46,7 @@ const StandardEnvelopeSchema = {
 function createServer() {
     const server = new index_js_1.Server({
         name: "mcp-relight-harmonize",
-        version: "1.0.3",
+        version: "1.0.4",
     }, {
         capabilities: {
             tools: {},
@@ -161,7 +161,7 @@ function createServer() {
                         "• When to use: Use when you need tangible image alternatives of a photo or product render with alternative lighting schemes.\n" +
                         "• When NOT to use: Do NOT use if you only need optical metrics (use 'analyze_optical_profile'), if blending a cutout into a background " +
                         "(use 'harmonize_composite'), or if you need diffusion AI text prompts (use 'synthesize_diffusion_prompt').\n" +
-                        "• Alternatives: Use 'synthesize_diffusion_prompt' for text prompts targeting GPT Image or Nano Banana, or 'list_cached_variations' to browse existing outputs.",
+                        "• Alternatives: Use 'synthesize_diffusion_prompt' for your Image Generator (GEMINI Nano Banana / Universal), or 'list_cached_variations' to browse existing outputs.",
                     inputSchema: {
                         type: "object",
                         properties: {
@@ -280,12 +280,12 @@ function createServer() {
                 {
                     name: "synthesize_diffusion_prompt",
                     description: "Synthesize precision enhancement and relighting diffusion prompts based on physical optical analysis of an image, " +
-                        "tailored specifically for GPT Image (DALL-E 3 / GPT-4o) and Nano Banana. Outputs photorealistic prompts with physical keywords " +
+                        "compatible with Any Image Generator Model (optimized for GEMINI Nano Banana). Outputs photorealistic prompts with physical keywords " +
                         "(exact Kelvin CCT, 3D light angles, volumetric dust rays, contact shadows) and calibrated denoising parameters (0.35 - 0.45).\n\n" +
                         "• Purpose: Generative AI prompt synthesis. Unlike 'generate_relight_variations' which creates image files locally, this tool translates " +
-                        "optical geometry into targeted text prompts and hyperparameter sets for external diffusion generators.\n" +
+                        "optical geometry into targeted text prompts and hyperparameter sets for Any Image Generator (optimized for Antigravity).\n" +
                         "• Behavior: Completely read-only, deterministic, zero filesystem modifications, no network calls, and no authentication required.\n" +
-                        "• When to use: Use when you want to feed photorealistic lighting directives or inpainting prompts into GPT Image or Nano Banana.\n" +
+                        "• When to use: Use when you want to feed photorealistic lighting directives or inpainting prompts into your Image Generator or Antigravity's generate_image.\n" +
                         "• When NOT to use: Do NOT use if you need local image rendering without an external AI model (use 'generate_relight_variations'), " +
                         "or if merging cutouts locally (use 'harmonize_composite').\n" +
                         "• Alternatives: Use 'generate_relight_variations' for instant offline image files, or 'analyze_optical_profile' for raw numerical statistics.",
@@ -303,10 +303,10 @@ function createServer() {
                             },
                             target_model: {
                                 type: "string",
-                                enum: ["gpt_image", "nano_banana"],
-                                default: "gpt_image",
-                                description: "Target generative engine: 'gpt_image' (outputs natural descriptive studio directives with 85mm prime lens and physical illumination) " +
-                                    "or 'nano_banana' (outputs dense tokenized optical shaders, roughness index, raytraced bounce, and ground contact shadow). Defaults to 'gpt_image'.",
+                                enum: ["universal", "nano_banana"],
+                                default: "universal",
+                                description: "Target generative engine format: 'universal' (outputs natural descriptive studio directives with 85mm prime lens and physical illumination compatible with Any Image Generator) " +
+                                    "or 'nano_banana' (outputs dense tokenized optical shaders for GEMINI Nano Banana). Defaults to 'universal'.",
                             },
                         },
                         required: ["image_path"],
@@ -318,7 +318,7 @@ function createServer() {
                             data: {
                                 type: "object",
                                 properties: {
-                                    targetModel: { type: "string", enum: ["GPT Image", "Nano Banana"] },
+                                    targetModel: { type: "string" },
                                     userIntent: { type: "string" },
                                     enhancementPrompt: { type: "string", description: "Prompt for micro-surface detail and lens clarity upgrade." },
                                     relightingPrompt: { type: "string", description: "Prompt for physical relighting with angles, CCT, and contact shadows." },
@@ -419,7 +419,7 @@ function createServer() {
             case "synthesize_diffusion_prompt": {
                 const imagePath = String(args.image_path || "");
                 const userIntent = String(args.user_intent || "");
-                const targetModel = String(args.target_model || "gpt_image");
+                const targetModel = String(args.target_model || "universal");
                 envelope = (0, synthesize_prompt_1.synthesizeDiffusionPromptTool)(imagePath, userIntent, targetModel);
                 break;
             }

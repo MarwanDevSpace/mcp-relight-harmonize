@@ -5,7 +5,20 @@
 [![CI](https://github.com/MarwanDevSpace/mcp-relight-harmonize/actions/workflows/ci.yml/badge.svg)](https://github.com/MarwanDevSpace/mcp-relight-harmonize/actions)
 [![Glama](https://img.shields.io/badge/Glama-Listed-24b47e.svg)](https://glama.ai/mcp/servers/MarwanDevSpace/mcp-relight-harmonize)
 
-**mcp-relight-harmonize** is an enterprise-grade TypeScript Model Context Protocol (MCP) server and Antigravity Skill engineered by **MarwanDevSpace**. It delivers local optical profiling, physically-grounded relighting variations, contact-aware composite harmonization, and precision prompt synthesis specifically targeting **GPT Image** (DALL-E 3 / GPT-4o) and **Nano Banana**.
+**mcp-relight-harmonize** is an enterprise-grade TypeScript Model Context Protocol (MCP) server and Antigravity Skill engineered by **MarwanDevSpace**. It delivers local 6-layer optical profiling, physically-grounded relighting variations, contact-aware composite harmonization, and precision diffusion prompt synthesis compatible with **any Image Generator Model** (specifically optimized for **GEMINI Nano Banana**).
+
+> [!NOTE]
+> **Antigravity Recommended**: This MCP server and skill is designed to work with **any Image Generator**, and is **strongly preferred and optimized for use inside Google Antigravity** where native desktop image generation (`generate_image`) powered by **GEMINI Nano Banana** is directly embedded into the agent environment.
+
+---
+
+## Strict Two-Phase Role Architecture
+
+1. **Phase 1: Python Optical Decomposition (`Layers/`)**:
+   - Python's role is strictly limited to deep analytical decomposition of the image into 6 visual layers (`01_highlights.png`, `02_shadows.png`, `03_ambient_occlusion.png`, `04_edges.png`, `05_depth_normals.png`, `06_chroma_saturation.png`) and extracting physical metrics.
+   - **Python does NOT generate the user's final modification.**
+2. **Phase 2: Direct Image Generator Modification**:
+   - The user's requested edit is executed **directly through the Image Generator** (e.g. `generate_image` in Antigravity) with hyper-depth and photorealistic precision based on everything learned from the 6 layers in `Layers/`.
 
 ---
 
@@ -18,6 +31,11 @@
   - Evaluates photometric luminance dynamic range, specular highlights, and shadow zones.
   - **Dynamic 6-Layer Extraction (`Layers/`):** Decomposes images into 6 visual layers (`01_highlights.png`, `02_shadows.png`, `03_ambient_occlusion.png`, `04_edges.png`, `05_depth_normals.png`, `06_chroma_saturation.png`) and writes on-demand `Layer.md` reports.
 
+- **Diffusion Prompt Synthesizer (`synthesize_diffusion_prompt`):**
+  - **Universal Image Generator Target:** Formulates natural descriptive studio directives (85mm f/2.0 prime lens, authentic subsurface scattering, photometric falloff, contact shadows).
+  - **GEMINI Nano Banana Target:** Formulates dense, tokenized optical shaders (micro-pores, roughness index, raytraced bounce, ground contact shadow caster, exact light azimuth, CCT).
+  - Supplies calibrated generation parameters (denoising strength: `0.35 - 0.45`).
+
 - **Physical Relighting (`generate_relight_variations`):**
   - **Ambient:** Soft fill light (+0.8 EV), lifted shadows, 5500K neutral daylight calibration.
   - **Dramatic:** Chiaroscuro high-key contrast S-curve, -1.5 EV shadow crush, directional key gradient.
@@ -28,11 +46,6 @@
   - Reinhard color statistics transfer in Ruderman $l\alpha\beta$ decorrelated space.
   - Grounding contact shadow synthesis to anchor the subject to the ground plane.
   - Smooth alpha blend placement eliminating boundary halos.
-
-- **Diffusion Prompt Synthesizer (`synthesize_diffusion_prompt`):**
-  - **GPT Image Target:** Formulates natural descriptive studio directives (85mm f/2.0 prime lens, authentic subsurface scattering, photometric falloff, contact shadows).
-  - **Nano Banana Target:** Formulates dense, tokenized optical shaders (micro-pores, roughness index, raytraced bounce, ground contact shadow caster, exact light azimuth, CCT).
-  - Supplies calibrated generation parameters (denoising strength: `0.35 - 0.45`).
 
 - **MCP Resources (`optical://presets`):**
   - Read-only JSON specification for lighting presets, EV curves, and color temperature benchmarks.
@@ -46,7 +59,7 @@
 | `analyze_optical_profile` | `image_path: string`, `extract_layers?: boolean`, `layers_dir?: string`, `user_intent?: string` | JSON technical report: CCT (Kelvin), light vectors, azimuth/elevation, luminance dynamics, and 6 visual analytical layers in `Layers/`. |
 | `generate_relight_variations` | `image_path: string`, `target_lighting?: string`, `output_dir?: string` | 4 generated images (Ambient, Dramatic, Rim, Mood) + EV adjustments log. |
 | `harmonize_composite` | `foreground_path: string`, `background_path: string`, `blend_mode?: string` | Composited image with harmonized CCT, Reinhard color transfer, and contact shadow. |
-| `synthesize_diffusion_prompt` | `image_path: string`, `user_intent?: string`, `target_model?: "gpt_image" \| "nano_banana"` | Enhancement prompt, Relighting prompt, and calibrated generation parameters. |
+| `synthesize_diffusion_prompt` | `image_path: string`, `user_intent?: string`, `target_model?: "universal" \| "nano_banana"` | Enhancement prompt, Relighting prompt, and calibrated generation parameters. |
 | `list_cached_variations` | `cache_dir?: string` | Inventory of generated relight variations and composite artifacts in the output cache. |
 
 ---
@@ -87,7 +100,7 @@ Add to your client's `mcp_config.json`:
 }
 ```
 
-Or via npx when published:
+Or via npx:
 ```json
 {
   "mcpServers": {

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-MarwanDevSpace - Dynamic 6-Layer Optical Decomposition & Intelligence Engine (Agent Skill Edition)
+MarwanDevSpace - Dynamic 6-Layer Optical Decomposition & Intelligence Engine
 Extracts 6 analytical visual layers into Layers/ directory:
   1. 01_highlights.png         - طبقة الألوان الفاتحة (Highlights / Specular Zones)
   2. 02_shadows.png            - طبقة الألوان الغامقة (Shadows / Low-Key Zones)
@@ -10,7 +10,7 @@ Extracts 6 analytical visual layers into Layers/ directory:
   6. 06_chroma_saturation.png  - طبقة الألوان والتشبع والبكسلات (Chroma & Saturation Distribution)
 
 Generates dynamic, on-demand Layer.md reports and physical generative prompts
-specifically targeting GPT Image and Nano Banana without static boilerplate.
+specifically targeting Universal Image Generator and Nano Banana without static boilerplate.
 """
 
 import os
@@ -110,14 +110,16 @@ def build_dynamic_diagnostics(
     else:
         findings.append(f"🔘 **لوحة لونية هادئة أو معتدلة**: متوسط التشبع `{round(mean_saturation, 3)}` يعكس تدرجات رصينة غير مبالغ بها.")
 
+    # Add custom intent option if provided
     if user_intent:
         tailored_options.insert(0, f"تطبيق طلبك المخصص فوراً: \"{user_intent}\" بتطابق فيزيائي دقيق مع بيانات الطبقات الست.")
     else:
         tailored_options.append("إعادة إضاءة بنمط هالة الحواف (Rim Light Halo +1.2 EV) لإبراز حدود المجسم وعزله عن الخلفية.")
         tailored_options.append("دمج العنصر في خلفية جديدة مع مطابقة إحصائيات الألوان ودرجة الحرارة وظلال الارتكاز.")
 
+    # Dynamic Generative Prompts tailored to exact metrics
     intent_clause = f", {user_intent}" if user_intent else ""
-    gpt_prompt = (
+    universal_prompt = (
         f"A master-quality studio photograph{intent_clause}, calibrated optical lighting at {round(azimuth_deg)}° azimuth "
         f"and {round(elevation_deg)}° elevation, authentic {round(cct_kelvin)}K color temperature balance, "
         f"physically-grounded ambient occlusion contact shadows firmly anchoring the base plane, "
@@ -136,7 +138,7 @@ def build_dynamic_diagnostics(
         "thermalDescription": thermal_desc,
         "findings": findings,
         "tailoredOptions": tailored_options,
-        "gptImagePrompt": gpt_prompt,
+        "universalImagePrompt": universal_prompt,
         "nanoBananaPrompt": nano_banana_prompt,
     }
 
@@ -153,21 +155,25 @@ def extract_layers(image_path: str, output_dir: str = "Layers", user_intent: Opt
     height, width, _ = rgb.shape
     num_pixels = width * height
 
+    # Luminance channel Y
     lum = 0.2126 * rgb[:, :, 0] + 0.7152 * rgb[:, :, 1] + 0.0722 * rgb[:, :, 2]
     norm_lum = lum / 255.0
 
+    # 1. طبقة الألوان الفاتحة (Highlights / Specular Zones)
     hl_mask = np.clip((lum - 170.0) / 75.0, 0.0, 1.0)
     hl_layer = rgb * hl_mask[:, :, np.newaxis]
     hl_coverage_pct = float((np.sum(lum > 170.0) / num_pixels) * 100.0)
     hl_path = os.path.join(abs_output_dir, "01_highlights.png")
     Image.fromarray(np.uint8(np.clip(hl_layer, 0, 255))).save(hl_path)
 
+    # 2. طبقة الألوان الغامقة (Shadows / Low-Key Zones)
     shadow_mask = np.clip((95.0 - lum) / 80.0, 0.0, 1.0)
     shadow_layer = rgb * shadow_mask[:, :, np.newaxis]
     shadow_coverage_pct = float((np.sum(lum < 85.0) / num_pixels) * 100.0)
     shadow_path = os.path.join(abs_output_dir, "02_shadows.png")
     Image.fromarray(np.uint8(np.clip(shadow_layer, 0, 255))).save(shadow_path)
 
+    # 3. طبقة الظل العالي (Deep Ambient Occlusion & Contact Umbra)
     ao_mask = np.clip((40.0 - lum) / 40.0, 0.0, 1.0)
     ao_visual = np.zeros((height, width, 3), dtype=np.float32)
     ao_visual[:, :, 0] = (1.0 - ao_mask) * 230.0
@@ -177,6 +183,7 @@ def extract_layers(image_path: str, output_dir: str = "Layers", user_intent: Opt
     ao_path = os.path.join(abs_output_dir, "03_ambient_occlusion.png")
     Image.fromarray(np.uint8(np.clip(ao_visual, 0, 255))).save(ao_path)
 
+    # 4. طبقة الحواف (Sobel Gradient Contours)
     sobel_x = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], dtype=np.float32)
     sobel_y = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]], dtype=np.float32)
     padded_lum = np.pad(norm_lum, 1, mode="edge")
@@ -193,6 +200,7 @@ def extract_layers(image_path: str, output_dir: str = "Layers", user_intent: Opt
     edge_path = os.path.join(abs_output_dir, "04_edges.png")
     Image.fromarray(np.uint8(edge_vis)).save(edge_path)
 
+    # 5. طبقة العمق (Depth / 3D Normal Vector Field)
     scale = 6.0
     nx = -gx * scale
     ny = -gy * scale
@@ -219,6 +227,7 @@ def extract_layers(image_path: str, output_dir: str = "Layers", user_intent: Opt
     azimuth_deg = (np.degrees(np.arctan2(-avg_ly, avg_lx)) + 360.0) % 360.0
     elevation_deg = np.clip(np.degrees(np.arcsin(np.clip(avg_lz, -1.0, 1.0))), 0.0, 90.0)
 
+    # 6. طبقة الألوان والتشبع (Chrominance / Saturation Distribution)
     max_c = np.maximum(np.maximum(rgb[:, :, 0], rgb[:, :, 1]), rgb[:, :, 2])
     min_c = np.minimum(np.minimum(rgb[:, :, 0], rgb[:, :, 1]), rgb[:, :, 2])
     chroma = max_c - min_c
@@ -234,11 +243,13 @@ def extract_layers(image_path: str, output_dir: str = "Layers", user_intent: Opt
     chroma_path = os.path.join(abs_output_dir, "06_chroma_saturation.png")
     Image.fromarray(np.uint8(sat_vis)).save(chroma_path)
 
+    # Correlated Color Temperature
     mean_r = float(np.mean(rgb[:, :, 0]))
     mean_g = float(np.mean(rgb[:, :, 1]))
     mean_b = float(np.mean(rgb[:, :, 2]))
     cct_kelvin = calculate_cct(mean_r, mean_g, mean_b)
 
+    # Build Dynamic Diagnostics based purely on calculated data
     diag = build_dynamic_diagnostics(
         cct_kelvin=cct_kelvin,
         azimuth_deg=azimuth_deg,
@@ -308,8 +319,10 @@ def extract_layers(image_path: str, output_dir: str = "Layers", user_intent: Opt
         },
     }
 
+    # Format findings and tailored suggestions dynamically
     findings_rendered = "\n\n".join([f"{item}" for item in diag["findings"]])
     options_rendered = "\n".join([f"- **خيار {idx + 1}**: {opt}" for idx, opt in enumerate(diag["tailoredOptions"])])
+
     user_intent_header = f"\n**الهدف المخصص المطلوب**: `{user_intent}`\n" if user_intent else ""
 
     layer_md_path = os.path.join(abs_output_dir, "Layer.md")
@@ -340,13 +353,15 @@ def extract_layers(image_path: str, output_dir: str = "Layers", user_intent: Opt
 
 ---
 
-## 3. التوجيه التوليدي المخصص (Calibrated Prompts for Generative Engines)
+## 3. التوجيه التوليدي المخصص (Calibrated Prompts for Image Generators)
 
-### أ. موجه GPT Image (DALL-E 3 / GPT-4o Vision):
-> "{diag['gptImagePrompt']}"
+### أ. النمط الوصفي الاستوديوي (Any Image Generator Model):
+> "{diag['universalImagePrompt']}"
 
-### ب. موجه Nano Banana (High-Density Optical Tokenizer):
+### ب. نمط الشيدر الضوئي المكثف (GEMINI Nano Banana - Antigravity):
 > "{diag['nanoBananaPrompt']}"
+
+> 💡 **ملاحظة**: هذا التوجيه متوافق مع **أي Image Generator Model**، ويُفضل ويُوصى بشدة باستخدامه داخل **Google Antigravity** لتطبيق التعديل المباشر عبر أداة `generate_image` ومحرك **GEMINI Nano Banana**!
 
 ---
 

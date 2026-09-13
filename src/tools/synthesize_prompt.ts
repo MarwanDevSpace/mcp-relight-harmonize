@@ -6,7 +6,7 @@ import { synthesizeDiffusionPromptImpl } from "../domain/prompt_synthesizer";
 export function synthesizeDiffusionPromptTool(
   imagePath: string,
   userIntent = "",
-  targetModel = "gpt_image"
+  targetModel = "universal"
 ): ResultEnvelope {
   try {
     const result = synthesizeDiffusionPromptImpl(imagePath, userIntent, targetModel);

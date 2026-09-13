@@ -2,9 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.synthesizeDiffusionPromptImpl = synthesizeDiffusionPromptImpl;
 const optical_analyzer_1 = require("./optical_analyzer");
-function synthesizeDiffusionPromptImpl(imagePath, userIntent = "", targetModel = "gpt_image") {
+function synthesizeDiffusionPromptImpl(imagePath, userIntent = "", targetModel = "universal") {
     const profile = (0, optical_analyzer_1.analyzeOpticalProfileImpl)(imagePath);
-    const normalizedModel = targetModel.toLowerCase().includes("banana") ? "Nano Banana" : "GPT Image";
+    const normalizedModel = targetModel.toLowerCase().includes("banana")
+        ? "GEMINI Nano Banana"
+        : "Universal Image Generator";
     const cct = Math.round(profile.colorTemperatureKelvin);
     const azimuth = profile.lightingAngles.azimuthDeg;
     const elevation = profile.lightingAngles.elevationDeg;
@@ -50,7 +52,7 @@ function synthesizeDiffusionPromptImpl(imagePath, userIntent = "", targetModel =
     let enhancementPrompt = "";
     let relightingPrompt = "";
     let recommendedParameters = {};
-    if (normalizedModel === "GPT Image") {
+    if (normalizedModel === "Universal Image Generator") {
         enhancementPrompt =
             `A master-quality studio photograph, exquisite micro-surface textures, pores and fine material grain, ` +
                 `subsurface scattering, 85mm prime lens at f/2.0, razor-sharp optical boundary and crystal-clear geometry${cleanIntent}.`;
@@ -59,16 +61,17 @@ function synthesizeDiffusionPromptImpl(imagePath, userIntent = "", targetModel =
                 `${cctTerm}, ${contrastTerm}, subtle rim lighting tracing the outer silhouette, volumetric dust rays visible in the air, ` +
                 `physically-based contact shadows naturally anchoring the base to the ground plane, authentic photometric falloff${cleanIntent}.`;
         recommendedParameters = {
-            model: "gpt-image-dalle3",
+            model: "universal-image-generator",
             style: "natural",
             quality: "hd",
             camera_lens: "85mm prime f/2.0",
             denoising_strength: 0.38,
             recommended_dimensions: `${profile.dimensions[0]}x${profile.dimensions[1]}`,
+            compatibility: "Works with any Image Generator Model; optimized for Antigravity",
         };
     }
     else {
-        // Nano Banana Target
+        // GEMINI Nano Banana Target
         enhancementPrompt =
             `ultra-detailed optical capture, raw sensor clarity, 8k uhd, micro-pores, surface specular roughness index ${profile.surfaceNormalVariation.toFixed(3)}, ` +
                 `zero chromatic aberration, pristine alpha edge delineation${cleanIntent}`;
@@ -77,7 +80,8 @@ function synthesizeDiffusionPromptImpl(imagePath, userIntent = "", targetModel =
                 `volumetric raytraced bounce, physically-grounded ground contact shadow, ambient occlusion caster, ` +
                 `denoising 0.38, light_azimuth_${Math.round(azimuth)}deg${cleanIntent}`;
         recommendedParameters = {
-            model: "nano-banana-optical-v1",
+            model: "gemini-nano-banana",
+            target_environment: "Google Antigravity",
             denoising_strength: 0.38,
             guidance_scale: 4.5,
             steps: 32,

@@ -16,7 +16,7 @@ export interface DynamicDiagnostics {
   thermalDescription: string;
   findings: string[];
   tailoredOptions: string[];
-  gptImagePrompt: string;
+  universalImagePrompt: string;
   nanoBananaPrompt: string;
 }
 
@@ -117,7 +117,7 @@ export function buildDynamicDiagnostics(
   }
 
   const intentClause = userIntent ? `, ${userIntent}` : "";
-  const gptPrompt =
+  const universalPrompt =
     `A master-quality studio photograph${intentClause}, calibrated optical lighting at ${Math.round(azimuthDeg)}° azimuth ` +
     `and ${Math.round(elevationDeg)}° elevation, authentic ${Math.round(cctKelvin)}K color temperature balance, ` +
     `physically-grounded ambient occlusion contact shadows firmly anchoring the base plane, ` +
@@ -134,7 +134,7 @@ export function buildDynamicDiagnostics(
     thermalDescription: thermalDesc,
     findings,
     tailoredOptions,
-    gptImagePrompt: gptPrompt,
+    universalImagePrompt: universalPrompt,
     nanoBananaPrompt: nanoPrompt,
   };
 }
@@ -360,13 +360,15 @@ ${findingsRendered}
 
 ---
 
-## 3. التوجيه التوليدي المخصص (Calibrated Prompts for Generative Engines)
+## 3. التوجيه التوليدي المخصص (Calibrated Prompts for Image Generators)
 
-### أ. موجه GPT Image (DALL-E 3 / GPT-4o Vision):
-> "${diagnostics.gptImagePrompt}"
+### أ. النمط الوصفي الاستوديوي (Any Image Generator Model):
+> "${diagnostics.universalImagePrompt}"
 
-### ب. موجه Nano Banana (High-Density Optical Tokenizer):
+### ب. نمط الشيدر الضوئي المكثف (GEMINI Nano Banana - Antigravity):
 > "${diagnostics.nanoBananaPrompt}"
+
+> 💡 **ملاحظة**: هذا التوجيه متوافق مع **أي Image Generator Model**، ويُفضل ويُوصى بشدة باستخدامه داخل **Google Antigravity** لتطبيق التعديل المباشر عبر أداة \`generate_image\` ومحرك **GEMINI Nano Banana**!
 
 ---
 

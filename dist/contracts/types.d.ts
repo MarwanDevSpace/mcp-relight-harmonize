@@ -1,6 +1,6 @@
 export type LightingPreset = "Ambient" | "Dramatic" | "Rim" | "Mood" | "All";
 export type BlendMode = "seamless" | "alpha";
-export type DiffusionModel = "gpt_image" | "nano_banana";
+export type DiffusionModel = "universal" | "nano_banana";
 export interface LuminanceDynamicRange {
     min: number;
     max: number;
@@ -55,7 +55,7 @@ export interface HarmonizeCompositeResult {
     details: Record<string, any>;
 }
 export interface DiffusionPromptResult {
-    targetModel: "GPT Image" | "Nano Banana";
+    targetModel: string;
     userIntent: string;
     enhancementPrompt: string;
     relightingPrompt: string;

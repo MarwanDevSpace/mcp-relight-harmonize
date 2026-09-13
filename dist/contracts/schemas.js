@@ -32,6 +32,6 @@ exports.SynthesizePromptInputSchema = zod_1.z.object({
         .describe("Creative description or lighting scenario (e.g., 'sunset golden hour', 'studio product shot')."),
     target_model: zod_1.z
         .string()
-        .default("gpt_image")
-        .describe("Target generative model: 'gpt_image' (GPT Image / DALL-E 3) or 'nano_banana' (Nano Banana)."),
+        .default("universal")
+        .describe("Target generative model format: 'universal' (Natural descriptive studio directives for Any Image Generator) or 'nano_banana' (GEMINI Nano Banana optical shader format)."),
 });

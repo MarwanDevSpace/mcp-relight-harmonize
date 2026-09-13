@@ -63,7 +63,7 @@ graph TD
     A --> E["harmonize_composite"]
     E -->|Composite Image + Grounding| C
     D --> F["4 Relit Variations (Ambient, Dramatic, Rim, Mood)"]
-    C --> G["Model Prompts (Flux, Midjourney, SDXL, IC-Light)"]
+    C --> G["Model Prompts (Any Image Generator / GEMINI Nano Banana)"]
 ```
 
 ### Evidence Chaining Rules
@@ -114,7 +114,7 @@ The repository integrates directly into the Antigravity agent architecture as an
 ├── references/
 │   ├── optical_math.md               # CIE XYZ, McCamy CCT, Normal tensors, Reinhard
 │   ├── tool_orchestration.md         # Interconnection criteria, evidence chaining, fallback rules
-│   └── diffusion_guide.md            # Prompt tokens & parameters for Flux/MJ/SDXL/IC-Light
+│   └── diffusion_guide.md            # Prompt tokens & parameters for Any Image Generator / GEMINI Nano Banana
 └── scripts/
     ├── run_pipeline.py               # Standalone CLI pipeline runner
     └── verify_server.py              # Self-contained tool & resource verifier

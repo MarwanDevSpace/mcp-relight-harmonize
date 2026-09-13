@@ -9,7 +9,7 @@ export interface DynamicDiagnostics {
     thermalDescription: string;
     findings: string[];
     tailoredOptions: string[];
-    gptImagePrompt: string;
+    universalImagePrompt: string;
     nanoBananaPrompt: string;
 }
 export interface LayerExtractionReport {

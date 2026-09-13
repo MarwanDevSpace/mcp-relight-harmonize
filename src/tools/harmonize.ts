@@ -36,7 +36,7 @@ export function harmonizeCompositeTool(
         },
         nextActions: [
           `Inspect the composite output at '${result.compositeImagePath}'.`,
-          "Call 'synthesize_diffusion_prompt' targeting GPT Image or Nano Banana for seamless boundary inpainting.",
+          "Call 'synthesize_diffusion_prompt' for your Image Generator (GEMINI Nano Banana / Universal) or trigger 'generate_image'.",
         ],
       }
     );

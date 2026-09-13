@@ -41,7 +41,7 @@ export function analyzeOpticalProfileTool(
 
     const nextActions = [
       `Call 'generate_relight_variations' on '${imagePath}' to explore alternative lighting schemes.`,
-      `Call 'synthesize_diffusion_prompt' targeting GPT Image or Nano Banana for high-res generative inpainting.`,
+      `Call 'synthesize_diffusion_prompt' for your Image Generator (GEMINI Nano Banana / Universal) or trigger 'generate_image'.`,
     ];
 
     if (layerReport) {
