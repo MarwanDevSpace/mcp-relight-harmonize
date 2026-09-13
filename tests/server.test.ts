@@ -27,6 +27,21 @@ describe("MCP Server Tool Contracts & Envelopes", () => {
     expect(env.nextActions.length).toBeGreaterThan(0);
   });
 
+  it("analyze_optical_profile with extract_layers creates 6 layers and Layer.md", () => {
+    const testDir = path.join(os.tmpdir(), "mcp_test_layers");
+    const env = analyzeOpticalProfileTool(fixtures.bgPath, true, testDir);
+
+    expect(env.status).toBe("success");
+    expect(env.data.layers).toBeDefined();
+    expect(env.data.layers.highlights).toBeDefined();
+    expect(env.data.layers.shadows).toBeDefined();
+    expect(env.data.layers.ambientOcclusion).toBeDefined();
+    expect(env.data.layers.edges).toBeDefined();
+    expect(env.data.layers.depthNormals).toBeDefined();
+    expect(env.data.layers.chromaSaturation).toBeDefined();
+    expect(env.evidence.artifacts?.length).toBe(7); // 6 images + Layer.md
+  });
+
   it("returns failed envelope for missing file gracefully", () => {
     const env = analyzeOpticalProfileTool("non_existent_file_123.png");
 

@@ -67,6 +67,23 @@ To inspect or discover previously generated relight variations or composite outp
 1. Call tool `list_cached_variations({ cache_dir?: "<path>" })`.
 2. Inspect `files` list containing filename, full path, byte size, and last modified timestamp for all output artifacts.
 
+### Workflow F: Dynamic 6-Layer Decomposition & Interactive Modification Loop
+For comprehensive optical intelligence and guided generation:
+1. Call tool `analyze_optical_profile({ image_path: "<path>", extract_layers: true, user_intent?: "<intent>" })` or execute Python script:
+   `python scripts/extract_layers.py --image <path> [--intent "<intent>"]`
+2. The engine generates 6 visual analytical layers into `Layers/`:
+   - `01_highlights.png` (Highlights / Specular Zones)
+   - `02_shadows.png` (Shadows / Low-Key Zones)
+   - `03_ambient_occlusion.png` (Deep Ambient Occlusion & Contact Umbra)
+   - `04_edges.png` (Sobel High-Frequency Contours)
+   - `05_depth_normals.png` (3D Surface Normal Gradient Field)
+   - `06_chroma_saturation.png` (Chrominance & Saturation Distribution)
+3. Examine each layer and retain optical findings in memory / CoT.
+4. Present the dynamic `Layer.md` and address the user with the mandatory decision prompt:
+   **"ماذا تريد من تعديل؟"**
+   presenting dynamically generated options tailored specifically to the image's detected optical profile.
+5. Upon the user's decision, immediately formulate the target prompt for **GPT Image** or **Nano Banana**. If the client/agent has an embedded image generator (`generate_image`), trigger generation immediately!
+
 ---
 
 ## 3. Reference Documentation

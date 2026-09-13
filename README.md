@@ -11,11 +11,12 @@
 
 ## Core Capabilities
 
-- **Optical Profiling (`analyze_optical_profile`):**
+- **Optical Profiling & 6-Layer Decomposition (`analyze_optical_profile`):**
   - Measures Correlated Color Temperature (CCT in Kelvin) via CIE 1931 xy chromaticity and McCamy's formulation.
   - Derives 3D surface normal gradient tensors ($\vec{N}$) and surface roughness index.
   - Computes dominant light vector, azimuth ($0^\circ - 360^\circ$), and elevation ($0^\circ - 90^\circ$).
   - Evaluates photometric luminance dynamic range, specular highlights, and shadow zones.
+  - **Dynamic 6-Layer Extraction (`Layers/`):** Decomposes images into 6 visual layers (`01_highlights.png`, `02_shadows.png`, `03_ambient_occlusion.png`, `04_edges.png`, `05_depth_normals.png`, `06_chroma_saturation.png`) and writes on-demand `Layer.md` reports.
 
 - **Physical Relighting (`generate_relight_variations`):**
   - **Ambient:** Soft fill light (+0.8 EV), lifted shadows, 5500K neutral daylight calibration.
@@ -42,7 +43,7 @@
 
 | Tool Name | Key Inputs | Outputs |
 |---|---|---|
-| `analyze_optical_profile` | `image_path: string` | JSON technical report: CCT (Kelvin), light vectors, azimuth/elevation, luminance dynamics, contrast zones. |
+| `analyze_optical_profile` | `image_path: string`, `extract_layers?: boolean`, `layers_dir?: string`, `user_intent?: string` | JSON technical report: CCT (Kelvin), light vectors, azimuth/elevation, luminance dynamics, and 6 visual analytical layers in `Layers/`. |
 | `generate_relight_variations` | `image_path: string`, `target_lighting?: string`, `output_dir?: string` | 4 generated images (Ambient, Dramatic, Rim, Mood) + EV adjustments log. |
 | `harmonize_composite` | `foreground_path: string`, `background_path: string`, `blend_mode?: string` | Composited image with harmonized CCT, Reinhard color transfer, and contact shadow. |
 | `synthesize_diffusion_prompt` | `image_path: string`, `user_intent?: string`, `target_model?: "gpt_image" \| "nano_banana"` | Enhancement prompt, Relighting prompt, and calibrated generation parameters. |

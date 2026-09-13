@@ -46,7 +46,7 @@ const StandardEnvelopeSchema = {
 function createServer() {
     const server = new index_js_1.Server({
         name: "mcp-relight-harmonize",
-        version: "1.0.2",
+        version: "1.0.3",
     }, {
         capabilities: {
             tools: {},
@@ -61,14 +61,14 @@ function createServer() {
                     name: "analyze_optical_profile",
                     description: "Extract physical optical metrics from an image, including Correlated Color Temperature (CCT in Kelvin), " +
                         "dominant 3D lighting vector (azimuth and elevation angles), photometric luminance dynamic range, contrast zones, " +
-                        "and surface normal roughness index.\n\n" +
-                        "• Purpose: Diagnostic optical extraction. Unlike 'generate_relight_variations', this tool produces no image files, " +
-                        "and unlike 'synthesize_diffusion_prompt', it returns pure numerical color-science data rather than text prompts.\n" +
-                        "• Behavior: Completely read-only, deterministic, zero filesystem modifications, no network egress, and no authentication required.\n" +
-                        "• When to use: Use as the prerequisite first step before relighting, inpainting, or compositing an image to inspect baseline lighting conditions.\n" +
-                        "• When NOT to use: Do NOT use if you need modified image files on disk (use 'generate_relight_variations'), if merging a cutout into a scene " +
-                        "(use 'harmonize_composite'), or if you need generative AI prompts (use 'synthesize_diffusion_prompt').\n" +
-                        "• Alternatives: Use 'generate_relight_variations' for visual lighting files, or 'synthesize_diffusion_prompt' for model prompts.",
+                        "surface normal roughness index, and optionally decompose into 6 analytical image layers in Layers/ directory.\n\n" +
+                        "• Purpose: Diagnostic optical extraction and 6-layer decomposition (Highlights, Shadows, Ambient Occlusion, Edges, Depth Normals, Chroma/Saturation). " +
+                        "Unlike 'generate_relight_variations' which creates artistic relit renders, this tool extracts physical diagnostic metrics and visual analytical decomposition layers.\n" +
+                        "• Behavior: Read-only by default; writes 6 analytical layer PNGs and Layer.md to the specified directory when 'extract_layers' is true. Unmetered local execution, zero network egress, zero external auth.\n" +
+                        "• When to use: Use as the prerequisite first step to inspect baseline lighting conditions or generate the 6 diagnostic layers into Layers/ before relighting or prompting.\n" +
+                        "• When NOT to use: Do NOT use if you need creative relighted styles (use 'generate_relight_variations'), if merging a cutout into a scene " +
+                        "(use 'harmonize_composite'), or if you only need generative AI prompt synthesis (use 'synthesize_diffusion_prompt').\n" +
+                        "• Alternatives: Use 'generate_relight_variations' for creative lighting styles, or 'synthesize_diffusion_prompt' for model prompts.",
                     inputSchema: {
                         type: "object",
                         properties: {
@@ -76,6 +76,18 @@ function createServer() {
                                 type: "string",
                                 description: "Absolute or workspace-relative path to a local image file (.png, .jpg, or .jpeg). " +
                                     "Must be an existing image under 50 MB.",
+                            },
+                            extract_layers: {
+                                type: "boolean",
+                                description: "If true, decomposes image into 6 analytical layers (Highlights, Shadows, Ambient Occlusion, Edges, Depth Normals, Chroma/Saturation) saved to Layers/ directory and generates Layer.md.",
+                            },
+                            layers_dir: {
+                                type: "string",
+                                description: "Optional target directory to store the 6 analytical layer images and Layer.md (defaults to 'Layers').",
+                            },
+                            user_intent: {
+                                type: "string",
+                                description: "Optional creative or corrective intent to dynamically tailor layer diagnostics, recommendations, and diffusion prompts.",
                             },
                         },
                         required: ["image_path"],
@@ -384,7 +396,10 @@ function createServer() {
         switch (name) {
             case "analyze_optical_profile": {
                 const imagePath = String(args.image_path || "");
-                envelope = (0, analyze_optical_1.analyzeOpticalProfileTool)(imagePath);
+                const extractLayers = Boolean(args.extract_layers);
+                const layersDir = args.layers_dir ? String(args.layers_dir) : undefined;
+                const userIntent = args.user_intent ? String(args.user_intent) : undefined;
+                envelope = (0, analyze_optical_1.analyzeOpticalProfileTool)(imagePath, extractLayers, layersDir, userIntent);
                 break;
             }
             case "generate_relight_variations": {
