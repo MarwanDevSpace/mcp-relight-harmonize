@@ -9,7 +9,7 @@ export interface ServerConfig {
 }
 
 export const config: ServerConfig = {
-  outputCacheDir: path.resolve(process.env.OUTPUT_CACHE_DIR || "./generated_variations"),
+  outputCacheDir: path.resolve(process.env.OUTPUT_CACHE_DIR || "./Layers"),
   maxFileSizeBytes: 50 * 1024 * 1024, // 50 MB
   allowedExtensions: new Set([".png", ".jpg", ".jpeg"]),
   colorTempD65Kelvin: 6504.0,

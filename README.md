@@ -1,54 +1,43 @@
-# mcp-relight-harmonize
+# MCP Relight & Harmonize Server
 
-[![npm version](https://img.shields.io/npm/v/mcp-relight-harmonize.svg)](https://www.npmjs.com/package/mcp-relight-harmonize)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![CI](https://github.com/MarwanDevSpace/mcp-relight-harmonize/actions/workflows/ci.yml/badge.svg)](https://github.com/MarwanDevSpace/mcp-relight-harmonize/actions)
-[![Glama](https://img.shields.io/badge/Glama-Listed-24b47e.svg)](https://glama.ai/mcp/servers/MarwanDevSpace/mcp-relight-harmonize)
+A production-grade, highly-deterministic Model Context Protocol (MCP) server engineered for **optical profiling, physical decomposition into 6 visual layers, contact-aware composite harmonization, and dual-format generative prompt synthesis (Detailed JSON + Accurate Master Prompt)**.
 
-**mcp-relight-harmonize** is an enterprise-grade TypeScript Model Context Protocol (MCP) server and Antigravity Skill engineered by **MarwanDevSpace**. It delivers local 6-layer optical profiling, physically-grounded relighting variations, contact-aware composite harmonization, and precision diffusion prompt synthesis compatible with **any Image Generator Model** (specifically optimized for **GEMINI Nano Banana**).
-
-> [!NOTE]
-> **Antigravity Recommended**: This MCP server and skill is designed to work with **any Image Generator**, and is **strongly preferred and optimized for use inside Google Antigravity** where native desktop image generation (`generate_image`) powered by **GEMINI Nano Banana** is directly embedded into the agent environment.
+> **Model Architecture Note**: Fully compatible with **Any Image Generator Model**, with dedicated targets for **Universal Image Generator** and **GEMINI Nano Banana**.  
+> **Environment Recommendation**: **Preferred and optimized for use inside Google Antigravity**, where native direct visual generation (`generate_image`) allows zero-friction, instantaneous application of the learned optical layers!
 
 ---
 
-## Strict Two-Phase Role Architecture
+## Architectural Principles & Strict Role Separation
 
-1. **Phase 1: Python Optical Decomposition (`Layers/`)**:
-   - Python's role is strictly limited to deep analytical decomposition of the image into 6 visual layers (`01_highlights.png`, `02_shadows.png`, `03_ambient_occlusion.png`, `04_edges.png`, `05_depth_normals.png`, `06_chroma_saturation.png`) and extracting physical metrics.
-   - **Python does NOT generate the user's final modification.**
-2. **Phase 2: Direct Image Generator Modification**:
-   - The user's requested edit is executed **directly through the Image Generator** (e.g. `generate_image` in Antigravity) with hyper-depth and photorealistic precision based on everything learned from the 6 layers in `Layers/`.
+1. **Python Role: Optical Extraction & Layer Decomposition Only**:
+   - Python executes **purely deterministic mathematical and optical analysis**.
+   - Generates exactly 6 visual decomposition layers into the **`Layers/`** directory.
+   - **Directory Invariant**: The server exclusively uses the **`Layers/`** directory. **No `Variations/` or `generated_variations/` directories are ever created.**
+   - Python **never** creates the final modified image.
+
+2. **Mandatory Image-by-Image Vision Analysis (Analyze)**:
+   - The AI Assistant **must never trigger image generation until it inspects and analyzes the 6 images in `Layers/` image-by-image (`صورة صورة`)**.
+   - Zero canned or pre-written text: All observations and insights stem directly from visual inspection of the actual layer images.
+
+3. **Dual-Format Generative Prompts (Two Formats)**:
+   - **Format 1: Detailed JSON Specification (`detailedJsonSpecification`)**: Comprehensive structured optical physics (Kelvin, azimuth, elevation, contrast ratio, roughness, contact shadow) and layer-by-layer directives for the generator.
+   - **Format 2: Accurate General Descriptive Master Prompt (`masterDescriptivePrompt`)**: Photorealistic studio photographic narrative integrating the user's intent with physical lighting and an 85mm prime lens at f/2.0.
+
+4. **Direct Execution via AI Image Generator**:
+   - Once the user answers **"ماذا تريد من تعديل؟"**, the modification is rendered **directly through the Image Generator** (such as `generate_image` / GEMINI Nano Banana in Antigravity).
 
 ---
 
-## Core Capabilities
+## The 6 Physical Visual Layers (`Layers/`)
 
-- **Optical Profiling & 6-Layer Decomposition (`analyze_optical_profile`):**
-  - Measures Correlated Color Temperature (CCT in Kelvin) via CIE 1931 xy chromaticity and McCamy's formulation.
-  - Derives 3D surface normal gradient tensors ($\vec{N}$) and surface roughness index.
-  - Computes dominant light vector, azimuth ($0^\circ - 360^\circ$), and elevation ($0^\circ - 90^\circ$).
-  - Evaluates photometric luminance dynamic range, specular highlights, and shadow zones.
-  - **Dynamic 6-Layer Extraction (`Layers/`):** Decomposes images into 6 visual layers (`01_highlights.png`, `02_shadows.png`, `03_ambient_occlusion.png`, `04_edges.png`, `05_depth_normals.png`, `06_chroma_saturation.png`) and writes on-demand `Layer.md` reports.
-
-- **Diffusion Prompt Synthesizer (`synthesize_diffusion_prompt`):**
-  - **Universal Image Generator Target:** Formulates natural descriptive studio directives (85mm f/2.0 prime lens, authentic subsurface scattering, photometric falloff, contact shadows).
-  - **GEMINI Nano Banana Target:** Formulates dense, tokenized optical shaders (micro-pores, roughness index, raytraced bounce, ground contact shadow caster, exact light azimuth, CCT).
-  - Supplies calibrated generation parameters (denoising strength: `0.35 - 0.45`).
-
-- **Physical Relighting (`generate_relight_variations`):**
-  - **Ambient:** Soft fill light (+0.8 EV), lifted shadows, 5500K neutral daylight calibration.
-  - **Dramatic:** Chiaroscuro high-key contrast S-curve, -1.5 EV shadow crush, directional key gradient.
-  - **Rim:** Normal curvature edge mask with high-intensity perimeter glow (+1.2 EV).
-  - **Mood:** 3200K tungsten amber shift, highlight bloom diffusion, warm atmospheric tone mapping.
-
-- **Composite Harmonization (`harmonize_composite`):**
-  - Reinhard color statistics transfer in Ruderman $l\alpha\beta$ decorrelated space.
-  - Grounding contact shadow synthesis to anchor the subject to the ground plane.
-  - Smooth alpha blend placement eliminating boundary halos.
-
-- **MCP Resources (`optical://presets`):**
-  - Read-only JSON specification for lighting presets, EV curves, and color temperature benchmarks.
+| # | Layer Image File | Physical Objective & Inspection Target |
+|---|---|---|
+| **1** | `01_highlights.png` | **طبقة الألوان الفاتحة**: Isolates specular highlights ($Y > 170/255$). Inspected for glint locations and clipping prevention. |
+| **2** | `02_shadows.png` | **طبقة الألوان الغامقة**: Isolates low-key values ($Y < 85/255$). Inspected for shadow density and photometric roll-off. |
+| **3** | `03_ambient_occlusion.png` | **طبقة الظل العالي والارتكاز**: Isolates contact umbra ($Y < 35/255$). Inspected to anchor base plane and prevent floating subjects. |
+| **4** | `04_edges.png` | **طبقة الحواف والتفاصيل**: Sobel gradient magnitude ($M = \sqrt{G_x^2 + G_y^2}$). Inspected for micro-texture and surface roughness. |
+| **5** | `05_depth_normals.png` | **طبقة العمق والمتجهات**: Tangent space normal map ($R=N_x, G=N_y, B=N_z$). Inspected for 3D light vector and volumetric volume. |
+| **6** | `06_chroma_saturation.png` | **طبقة الألوان والتشبع**: HSV chroma purity distribution. Inspected for color casts and spectral balance. |
 
 ---
 
@@ -56,11 +45,11 @@
 
 | Tool Name | Key Inputs | Outputs |
 |---|---|---|
-| `analyze_optical_profile` | `image_path: string`, `extract_layers?: boolean`, `layers_dir?: string`, `user_intent?: string` | JSON technical report: CCT (Kelvin), light vectors, azimuth/elevation, luminance dynamics, and 6 visual analytical layers in `Layers/`. |
-| `generate_relight_variations` | `image_path: string`, `target_lighting?: string`, `output_dir?: string` | 4 generated images (Ambient, Dramatic, Rim, Mood) + EV adjustments log. |
+| `analyze_optical_profile` | `image_path: string`, `extract_layers?: boolean`, `layers_dir?: string`, `user_intent?: string` | Mathematical optical metrics, 6 visual layers in `Layers/`, and dynamic `Layer.md`. |
+| `synthesize_diffusion_prompt` | `image_path: string`, `user_intent?: string`, `target_model?: "universal" \| "nano_banana"` | **Dual Prompts**: Detailed JSON Specification + Accurate General Descriptive Master Prompt. |
+| `generate_relight_variations` | `image_path: string`, `target_lighting?: string`, `output_dir?: string` | Physical relit images saved into `Layers/` (Ambient, Dramatic, Rim, Mood). |
 | `harmonize_composite` | `foreground_path: string`, `background_path: string`, `blend_mode?: string` | Composited image with harmonized CCT, Reinhard color transfer, and contact shadow. |
-| `synthesize_diffusion_prompt` | `image_path: string`, `user_intent?: string`, `target_model?: "universal" \| "nano_banana"` | Enhancement prompt, Relighting prompt, and calibrated generation parameters. |
-| `list_cached_variations` | `cache_dir?: string` | Inventory of generated relight variations and composite artifacts in the output cache. |
+| `list_cached_variations` | `cache_dir?: string` | Inventory of generated layers and artifacts in the `Layers/` directory. |
 
 ---
 
@@ -93,7 +82,7 @@ Add to your client's `mcp_config.json`:
         "c:/Users/DKurdistan/Desktop/mcp-relight-harmonize/dist/index.js"
       ],
       "env": {
-        "OUTPUT_CACHE_DIR": "./generated_variations"
+        "OUTPUT_CACHE_DIR": "./Layers"
       }
     }
   }
@@ -106,7 +95,7 @@ Or via npx:
   "mcpServers": {
     "mcp-relight-harmonize": {
       "command": "npx",
-      "args": ["-y", "mcp-relight-harmonize"]
+      "args": ["-y", "mcp-relight-harmonize@latest"]
     }
   }
 }
@@ -118,10 +107,11 @@ Or via npx:
 docker build -t mcp-relight-harmonize .
 
 # Run container over stdio
-docker run -i --rm mcp-relight-harmonize
+docker run -i --rm -e OUTPUT_CACHE_DIR=/app/Layers mcp-relight-harmonize
 ```
 
 ---
 
-## Architectural Profile
-Consult [MASTER.md](./MASTER.md) for the complete persona specification, optical formulations, and system invariants.
+## License
+
+MIT © MarwanDevSpace

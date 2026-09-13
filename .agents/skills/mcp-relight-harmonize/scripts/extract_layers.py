@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """
-MarwanDevSpace - Dynamic 6-Layer Optical Decomposition & Intelligence Engine
-Extracts 6 analytical visual layers into Layers/ directory:
-  1. 01_highlights.png         - طبقة الألوان الفاتحة (Highlights / Specular Zones)
-  2. 02_shadows.png            - طبقة الألوان الغامقة (Shadows / Low-Key Zones)
-  3. 03_ambient_occlusion.png  - طبقة الظل العالي (Deep Ambient Occlusion & Ground Contact)
-  4. 04_edges.png              - طبقة الحواف (Sobel High-Frequency Contours)
-  5. 05_depth_normals.png      - طبقة العمق (3D Surface Normal Gradient Field)
+MarwanDevSpace Dynamic 6-Layer Optical Decomposition & Physical Extraction
+Decomposes input images into 6 physical visual layers:
+  1. 01_highlights.png         - طبقة الألوان الفاتحة (Highlights & Specular Glints)
+  2. 02_shadows.png            - طبقة الألوان الغامقة (Shadows & Low-Key Density)
+  3. 03_ambient_occlusion.png  - طبقة الظل العالي والارتكاز الأرضي (Deep Contact Shadows & Umbra)
+  4. 04_edges.png              - طبقة الحواف والتفاصيل المجهرية (Sobel High-Frequency Gradient Contours)
+  5. 05_depth_normals.png      - طبقة العمق والمتجهات (3D Normal Vector Field & Light Angle Tensor)
   6. 06_chroma_saturation.png  - طبقة الألوان والتشبع والبكسلات (Chroma & Saturation Distribution)
 
-Generates dynamic, on-demand Layer.md reports and physical generative prompts
-specifically targeting Universal Image Generator and Nano Banana without static boilerplate.
+Generates dynamic, on-demand Layer.md reports and dual-format generative prompts
+(Detailed JSON Specification + Accurate General Descriptive Master Prompt)
+specifically targeting Universal Image Generator and GEMINI Nano Banana in Antigravity.
 """
 
 import os
@@ -28,24 +29,27 @@ def calculate_cct(r_mean: float, g_mean: float, b_mean: float) -> float:
     b_norm = min(max(b_mean / 255.0, 0.0), 1.0)
 
     # Gamma linearization (sRGB -> linear RGB)
-    r_lin = ((r_norm + 0.055) / 1.055) ** 2.4 if r_norm > 0.04045 else r_norm / 12.92
-    g_lin = ((g_norm + 0.055) / 1.055) ** 2.4 if g_norm > 0.04045 else g_norm / 12.92
-    b_lin = ((b_norm + 0.055) / 1.055) ** 2.4 if b_norm > 0.04045 else b_norm / 12.92
+    def to_linear(c: float) -> float:
+        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
 
-    # CIE XYZ matrix transformation
-    X = 0.4124564 * r_lin + 0.3575761 * g_lin + 0.1804375 * b_lin
-    Y = 0.2126729 * r_lin + 0.7151522 * g_lin + 0.0721750 * b_lin
-    Z = 0.0193339 * r_lin + 0.1191920 * g_lin + 0.9503041 * b_lin
+    r_lin, g_lin, b_lin = to_linear(r_norm), to_linear(g_norm), to_linear(b_norm)
+
+    # sRGB to XYZ matrix transform
+    X = r_lin * 0.4124564 + g_lin * 0.3575761 + b_lin * 0.1804375
+    Y = r_lin * 0.2126729 + g_lin * 0.7151522 + b_lin * 0.0721750
+    Z = r_lin * 0.0193339 + g_lin * 0.1191920 + b_lin * 0.9503041
 
     total = X + Y + Z
-    if total <= 1e-7:
+    if total <= 1e-6:
         return 6500.0
 
     x = X / total
     y = Y / total
-    denom = 0.1858 - y
+
+    # McCamy formula
+    denom = y - 0.1858
     if abs(denom) < 1e-6:
-        denom = 1e-6 if denom >= 0 else -1e-6
+        return 6500.0
 
     n = (x - 0.3320) / denom
     cct = 449.0 * (n ** 3) + 3525.0 * (n ** 2) + 6823.3 * n + 5520.33
@@ -62,80 +66,101 @@ def build_dynamic_diagnostics(
     mean_saturation: float,
     user_intent: Optional[str] = None
 ) -> Dict[str, Any]:
-    """Dynamically analyzes layer metrics to produce targeted findings, customized suggestions, and diffusion prompts."""
-    findings: List[str] = []
-    tailored_options: List[str] = []
+    """Generates pure optical metrics, dual prompt formats (Detailed JSON + Master Descriptive Prompt)."""
+    rounded_cct = round(cct_kelvin)
+    rounded_azimuth = round(azimuth_deg)
+    rounded_elevation = round(elevation_deg)
 
-    # 1. Thermal & Chromatic Diagnostics
-    if cct_kelvin < 3800:
-        thermal_desc = f"طيف لوني دافئ جداً ({round(cct_kelvin)}K - Tungsten/Golden Hour)"
-        findings.append(f"🔥 **انحياز طيفي دافئ**: الصورة مسجلة بحرارة `{round(cct_kelvin)}K` مع غلبة للأطياف البرتقالية والصفراء في القنوات اللونية.")
-        tailored_options.append(f"موازنة حرارة الألوان من `{round(cct_kelvin)}K` إلى 5500K نهارية محايدة لإزالة المسحة الكهرمانية.")
-    elif cct_kelvin > 6500:
-        thermal_desc = f"طيف لوني بارد ({round(cct_kelvin)}K - Cool Atmospheric Skylight)"
-        findings.append(f"❄️ **انحياز طيفي بارد**: الصورة مسجلة بحرارة `{round(cct_kelvin)}K` مع غلبة للزرقة والارتداد السماوي البارد.")
-        tailored_options.append(f"تدفئة المشهد الضوئي برفع حرارة الألوان إلى 3200K (Mood Tungsten) أو 4500K سينمائي.")
+    if rounded_cct < 3800:
+        thermal_desc = f"{rounded_cct}K (Warm Tungsten/Golden Hour)"
+    elif rounded_cct > 6500:
+        thermal_desc = f"{rounded_cct}K (Cool Atmospheric Skylight)"
     else:
-        thermal_desc = f"طيف نهاري متوازن ({round(cct_kelvin)}K - Balanced Daylight)"
-        findings.append(f"☀️ **حرارة ألوان متوازنة**: حرارة الألوان عند `{round(cct_kelvin)}K` تماثل الإضاءة الاستوديوية المحايدة.")
+        thermal_desc = f"{rounded_cct}K (Balanced Daylight)"
 
-    # 2. Lighting Angles & Dynamic Contrast
-    light_dir = "يمين" if 0 <= azimuth_deg < 90 or 270 <= azimuth_deg <= 360 else "يسار"
-    light_vert = "علوية" if elevation_deg > 50 else "أفقية جانبية"
-    findings.append(f"💡 **توجيه الإضاءة الرئيسية**: زاوية السمت `{round(azimuth_deg)}°` (إضاءة من جهة ال{light_dir}) مع زاوية ارتفاع `{round(elevation_deg)}°` ({light_vert}).")
+    optical_physics = {
+        "cctKelvin": rounded_cct,
+        "azimuthDeg": rounded_azimuth,
+        "elevationDeg": rounded_elevation,
+        "hlCoveragePct": round(hl_coverage_pct, 2),
+        "shadowCoveragePct": round(shadow_coverage_pct, 2),
+        "aoCoveragePct": round(ao_coverage_pct, 2),
+        "edgeRoughness": round(mean_gradient, 4),
+        "saturationMean": round(mean_saturation, 3),
+    }
 
-    if shadow_coverage_pct > 35.0 and hl_coverage_pct > 15.0:
-        findings.append(f"⚡ **تباين درامي عالي (Chiaroscuro)**: كثافة الظلال `{round(shadow_coverage_pct, 1)}%` مع سعة مناطق ساطعة `{round(hl_coverage_pct, 1)}%` تدل على تباين قوي بين المفتاح الضوئي والملء.")
-        tailored_options.append("تنعيم التباين ورفع تفاصيل الظلال المغلقة عبر وضع الإضاءة المحيطية (Ambient Fill +0.8 EV).")
-    elif shadow_coverage_pct < 12.0 and hl_coverage_pct < 12.0:
-        findings.append("🌫️ **إضاءة منبسطة ناعمة (Flat Diffuse)**: تباين منخفض وغياب للمناطق الساطعة الحادة، ما يعطي مظهراً هادئاً.")
-        tailored_options.append("إضافة عمق درامي وزيادة التباين بنمط Chiaroscuro عالي التحديد مع إضاءة اتجاهية بارزة.")
+    intent_clause = f", {user_intent.strip()}" if user_intent else ""
 
-    # 3. Grounding & Ambient Occlusion
-    if ao_coverage_pct < 2.0:
-        findings.append(f"⚠️ **فقدان الارتكاز الأرضي (Lack of Grounding)**: نسبة الظلال التلامسية العميقة `{round(ao_coverage_pct, 2)}%` تكاد تنعدم، مما قد يظهر العنصر كأنه طافٍ في الفراغ.")
-        tailored_options.append(f"بناء وتثبيت ظل تلامسي أرضي فيزيائي (Contact Shadow Footprint) أسفل أدنى نقطة ارتكاز.")
-    else:
-        findings.append(f"⚓ **ارتكاز أرضي متماسك**: نسبة ظلال التلامس والانغلاق الموضعي `{round(ao_coverage_pct, 1)}%` تؤمن التصاقاً بصرياً طبيعياً بالأرضية.")
+    # 1. Detailed JSON Specification for Image Generator
+    detailed_json_spec = {
+        "optical_parameters": {
+            "color_temperature_kelvin": rounded_cct,
+            "lighting_angles": {
+                "azimuth_deg": rounded_azimuth,
+                "elevation_deg": rounded_elevation,
+            },
+            "specular_highlight_coverage_pct": round(hl_coverage_pct, 2),
+            "shadow_coverage_pct": round(shadow_coverage_pct, 2),
+            "contact_ao_coverage_pct": round(ao_coverage_pct, 2),
+            "sobel_edge_roughness_index": round(mean_gradient, 4),
+            "chroma_saturation_mean": round(mean_saturation, 3),
+        },
+        "layer_guidance_for_generator": {
+            "layer_01_highlights": "Calibrate specular highlights without digital clipping or blown highlights.",
+            "layer_02_shadows": "Maintain shadow depth with natural photometric roll-off and low-key contrast balance.",
+            "layer_03_ambient_occlusion": "Anchor the subject firmly to the ground plane with contact shadow umbra.",
+            "layer_04_edges": "Preserve fine surface micro-relief and crisp material boundaries without artifacts.",
+            "layer_05_depth_normals": f"Align surface normal illumination to azimuth {rounded_azimuth}° and elevation {rounded_elevation}°.",
+            "layer_06_chroma_saturation": f"Balance color saturation and spectral purity according to {rounded_cct}K lighting.",
+        },
+        "camera_and_capture": {
+            "lens": "85mm prime lens f/2.0",
+            "lighting_rig": "Calibrated photometric studio environment",
+            "subsurface_scattering": "Authentic physical light diffusion",
+        },
+        "user_modification": user_intent or "High-fidelity physical harmonization and optical relighting",
+    }
 
-    # 4. Surface Micro-textures & Edges
-    if mean_gradient > 0.03:
-        findings.append(f"🔍 **تفاصيل سطحية دقيقة وحواف حادة**: متوسط تباين سوبل `{round(mean_gradient, 4)}` يشير إلى وفرة في التفاصيل المجهرية والأنسجة السطحية الواضحة.")
-    else:
-        findings.append(f"🎨 **حواف ناعمة وسطح انسيابي**: متوسط تدرج سوبل `{round(mean_gradient, 4)}` يشير إلى مساحات ناعمة متصلة ومناسبة للتنعيم وإعادة التوزيع.")
-
-    # 5. Chroma / Saturation
-    if mean_saturation > 0.40:
-        findings.append(f"🌈 **تشبع لوني مكثف**: متوسط التشبع `{round(mean_saturation, 3)}` يظهر كثافة لونية حيوية في البكسلات.")
-    else:
-        findings.append(f"🔘 **لوحة لونية هادئة أو معتدلة**: متوسط التشبع `{round(mean_saturation, 3)}` يعكس تدرجات رصينة غير مبالغ بها.")
-
-    # Add custom intent option if provided
-    if user_intent:
-        tailored_options.insert(0, f"تطبيق طلبك المخصص فوراً: \"{user_intent}\" بتطابق فيزيائي دقيق مع بيانات الطبقات الست.")
-    else:
-        tailored_options.append("إعادة إضاءة بنمط هالة الحواف (Rim Light Halo +1.2 EV) لإبراز حدود المجسم وعزله عن الخلفية.")
-        tailored_options.append("دمج العنصر في خلفية جديدة مع مطابقة إحصائيات الألوان ودرجة الحرارة وظلال الارتكاز.")
-
-    # Dynamic Generative Prompts tailored to exact metrics
-    intent_clause = f", {user_intent}" if user_intent else ""
-    universal_prompt = (
-        f"A master-quality studio photograph{intent_clause}, calibrated optical lighting at {round(azimuth_deg)}° azimuth "
-        f"and {round(elevation_deg)}° elevation, authentic {round(cct_kelvin)}K color temperature balance, "
+    # 2. Master Photorealistic Descriptive Text Prompt
+    master_descriptive_prompt = (
+        f"A master-quality studio photograph{intent_clause}. Calibrated optical lighting at {rounded_azimuth}° azimuth "
+        f"and {rounded_elevation}° elevation, authentic {rounded_cct}K color temperature balance, "
         f"physically-grounded ambient occlusion contact shadows firmly anchoring the base plane, "
         f"crisp micro-surface geometry (Sobel roughness index {round(mean_gradient, 3)}), "
         f"smooth luminance falloff and authentic subsurface scattering, 85mm prime lens f/2.0."
     )
 
+    universal_prompt = master_descriptive_prompt
+
     nano_banana_prompt = (
-        f"optics relight, cct {round(cct_kelvin)}K, light vector azimuth {round(azimuth_deg)} deg elevation {round(elevation_deg)} deg, "
+        f"optics relight, cct {rounded_cct}K, light vector azimuth {rounded_azimuth} deg elevation {rounded_elevation} deg, "
         f"surface roughness {round(mean_gradient, 4)}, saturation index {round(mean_saturation, 3)}, "
         f"ground contact occlusion caster, volumetric photon bounce, high-key rim highlight accents, "
         f"denoising strength 0.38{intent_clause}"
     )
 
+    # Concise physical observations
+    findings = [
+        f"حرارة الألوان المقاسة: {rounded_cct}K ({thermal_desc})",
+        f"توجيه الإضاءة الفعلي: زاوية السمت {rounded_azimuth}° | زاوية الارتفاع {rounded_elevation}°",
+        f"تغطية الأضواء الساطعة (Highlights): {round(hl_coverage_pct, 2)}%",
+        f"تغطية الظلال (Shadows): {round(shadow_coverage_pct, 2)}%",
+        f"نسبة الارتكاز الأرضي (AO): {round(ao_coverage_pct, 2)}%",
+        f"خشونة الحواف المجهرية (Sobel): {round(mean_gradient, 4)}",
+        f"متوسط النقاء اللوني (Saturation): {round(mean_saturation, 3)}",
+    ]
+
+    tailored_options = (
+        [f"تطبيق التعديل المخصص فوراً: \"{user_intent}\" بمطابقة فيزيائية دقيقة عبر Image Generator."]
+        if user_intent
+        else ["طلب أي تعديل مخصص في الإضاءة أو الطابع البصري لتطبيقه مباشرة عبر Image Generator."]
+    )
+
     return {
         "thermalDescription": thermal_desc,
+        "opticalPhysics": optical_physics,
+        "detailedJsonSpecification": detailed_json_spec,
+        "masterDescriptivePrompt": master_descriptive_prompt,
         "findings": findings,
         "tailoredOptions": tailored_options,
         "universalImagePrompt": universal_prompt,
@@ -143,24 +168,25 @@ def build_dynamic_diagnostics(
     }
 
 def extract_layers(image_path: str, output_dir: str = "Layers", user_intent: Optional[str] = None) -> Dict[str, Any]:
+    """Decomposes image into 6 layers and builds Layer.md."""
     abs_image_path = os.path.abspath(image_path)
     if not os.path.exists(abs_image_path):
-        raise FileNotFoundError(f"Source image not found: {abs_image_path}")
+        raise FileNotFoundError(f"Input image not found: {abs_image_path}")
 
-    os.makedirs(output_dir, exist_ok=True)
     abs_output_dir = os.path.abspath(output_dir)
+    os.makedirs(abs_output_dir, exist_ok=True)
 
     img = Image.open(abs_image_path).convert("RGB")
+    width, height = img.size
     rgb = np.array(img, dtype=np.float32)
-    height, width, _ = rgb.shape
-    num_pixels = width * height
 
-    # Luminance channel Y
+    # Luminance computation (ITU-R BT.709)
     lum = 0.2126 * rgb[:, :, 0] + 0.7152 * rgb[:, :, 1] + 0.0722 * rgb[:, :, 2]
     norm_lum = lum / 255.0
+    num_pixels = width * height
 
     # 1. طبقة الألوان الفاتحة (Highlights / Specular Zones)
-    hl_mask = np.clip((lum - 170.0) / 75.0, 0.0, 1.0)
+    hl_mask = np.clip((lum - 140.0) / 100.0, 0.0, 1.0)
     hl_layer = rgb * hl_mask[:, :, np.newaxis]
     hl_coverage_pct = float((np.sum(lum > 170.0) / num_pixels) * 100.0)
     hl_path = os.path.join(abs_output_dir, "01_highlights.png")
@@ -319,60 +345,63 @@ def extract_layers(image_path: str, output_dir: str = "Layers", user_intent: Opt
         },
     }
 
-    # Format findings and tailored suggestions dynamically
-    findings_rendered = "\n\n".join([f"{item}" for item in diag["findings"]])
-    options_rendered = "\n".join([f"- **خيار {idx + 1}**: {opt}" for idx, opt in enumerate(diag["tailoredOptions"])])
-
     user_intent_header = f"\n**الهدف المخصص المطلوب**: `{user_intent}`\n" if user_intent else ""
+    json_spec_formatted = json.dumps(diag["detailedJsonSpecification"], indent=2)
 
     layer_md_path = os.path.join(abs_output_dir, "Layer.md")
-    layer_md_content = f"""# تقرير الطبقات التحليلية الست (Layer.md)
+    layer_md_content = f"""# تقرير الفحص البصري وتفكيك الطبقات (Layer.md)
 **مصدر الصورة**: `{abs_image_path}`  
 **أبعاد الصورة**: `{width}x{height}` بكسل  
-**التصنيف الضوئي المكتشف**: `{diag['thermalDescription']}`  
+**التصنيف الضوئي المقاس**: `{diag['thermalDescription']}`  
 **زاوية الإضاءة المسجلة**: سمت `{round(azimuth_deg)}°` | ارتفاع `{round(elevation_deg)}°`{user_intent_header}
 
 ---
 
-## 1. فهرس الطبقات التحليلية الست (The 6 Extracted Layers)
+## 1. فهرس الطبقات التحليلية الست المستخرجة (The 6 Extracted Layers)
 
-| # | اسم الطبقة | الملف المولد | القراءة الفيزيائية المكتشفة |
+| # | اسم الطبقة | الملف المولد | القياس الفيزيائي الدقيق |
 |---|---|---|---|
-| **1** | **طبقة الألوان الفاتحة (Highlights)** | [`01_highlights.png`](file:///{hl_path.replace(os.sep, '/')}) | نسبة تغطية الأضواء الساطعة: `{round(hl_coverage_pct, 2)}%` |
+| **1** | **طبقة الألوان الفاتحة (Highlights)** | [`01_highlights.png`](file:///{hl_path.replace(os.sep, '/')}) | تغطية الإضاءة العالية واللمعان: `{round(hl_coverage_pct, 2)}%` |
 | **2** | **طبقة الألوان الغامقة (Shadows)** | [`02_shadows.png`](file:///{shadow_path.replace(os.sep, '/')}) | مساحة الظلال والمناطق الداكنة: `{round(shadow_coverage_pct, 2)}%` |
-| **3** | **طبقة الظل العالي (Ambient Occlusion)** | [`03_ambient_occlusion.png`](file:///{ao_path.replace(os.sep, '/')}) | كثافة الارتكاز الأرضي وظلال التلامس: `{round(ao_coverage_pct, 2)}%` |
-| **4** | **طبقة الحواف (Edges & Contours)** | [`04_edges.png`](file:///{edge_path.replace(os.sep, '/')}) | تباين الحواف المجهرية لسوبل: `{round(mean_gradient, 4)}` |
-| **5** | **طبقة العمق (3D Depth Normals)** | [`05_depth_normals.png`](file:///{depth_path.replace(os.sep, '/')}) | توجيه التنسور المتجهي ثلاثي الأبعاد: سمت `{round(azimuth_deg)}°` |
-| **6** | **طبقة الألوان والتشبع (Chroma / Saturation)** | [`06_chroma_saturation.png`](file:///{chroma_path.replace(os.sep, '/')}) | متوسط تشبع وتوزيع نقاء الألوان: `{round(mean_saturation, 3)}` |
+| **3** | **طبقة الظل العالي والارتكاز (Ambient Occlusion)** | [`03_ambient_occlusion.png`](file:///{ao_path.replace(os.sep, '/')}) | كثافة ارتكاز التلامس الأرضي: `{round(ao_coverage_pct, 2)}%` |
+| **4** | **طبقة الحواف والتفاصيل (Edges & Contours)** | [`04_edges.png`](file:///{edge_path.replace(os.sep, '/')}) | تباين الحواف المجهرية (سوبل): `{round(mean_gradient, 4)}` |
+| **5** | **طبقة العمق والمتجهات (3D Depth Normals)** | [`05_depth_normals.png`](file:///{depth_path.replace(os.sep, '/')}) | توجيه متجهات السطح ثلاثية الأبعاد: سمت `{round(azimuth_deg)}°` |
+| **6** | **طبقة الألوان والتشبع (Chroma / Saturation)** | [`06_chroma_saturation.png`](file:///{chroma_path.replace(os.sep, '/')}) | متوسط تشبع ونقاء القنوات اللونية: `{round(mean_saturation, 3)}` |
 
 ---
 
-## 2. النتائج البصرية الديناميكية المستخلصة من الصورة (Dynamic Findings)
-
-{findings_rendered}
-
----
-
-## 3. التوجيه التوليدي المخصص (Calibrated Prompts for Image Generators)
-
-### أ. النمط الوصفي الاستوديوي (Any Image Generator Model):
-> "{diag['universalImagePrompt']}"
-
-### ب. نمط الشيدر الضوئي المكثف (GEMINI Nano Banana - Antigravity):
-> "{diag['nanoBananaPrompt']}"
-
-> 💡 **ملاحظة**: هذا التوجيه متوافق مع **أي Image Generator Model**، ويُفضل ويُوصى بشدة باستخدامه داخل **Google Antigravity** لتطبيق التعديل المباشر عبر أداة `generate_image` ومحرك **GEMINI Nano Banana**!
+## 2. الإلزامية الصارمة: فحص طبقات Layers/ صورة صورة بالذكاء الاصطناعي
+> [!IMPORTANT]
+> **يُمنع منعاً باتاً الشروع في توليد الصورة المعدلة (Image Generation) قبل فحص كل صورة من صور مجلد `Layers/` صورة صورة بالرؤية البصرية (Vision Analyze)!**
+> 
+> يقوم الذكاء الاصطناعي بفحص كل ملف واستخلاص معالمه البصرية الحقيقية دون أي نصوص جاهزة أو مسبقة:
+> 1. [`01_highlights.png`](file:///{hl_path.replace(os.sep, '/')}): فحص مناطق الانعكاسات الذروية والتوهج ولمعان الخامات.
+> 2. [`02_shadows.png`](file:///{shadow_path.replace(os.sep, '/')}): فحص تدرج الظلال، مستوى الانضغاط، ومناطق العتمة low-key.
+> 3. [`03_ambient_occlusion.png`](file:///{ao_path.replace(os.sep, '/')}): فحص خط الارتكاز الأرضي لمنع ظهور العنصر طافياً في الفراغ.
+> 4. [`04_edges.png`](file:///{edge_path.replace(os.sep, '/')}): فحص حدة الحدود، التضاريس السطحية، والمسامية الدقيقة.
+> 5. [`05_depth_normals.png`](file:///{depth_path.replace(os.sep, '/')}): فحص زاوية سقوط الضوء ثلاثية الأبعاد وتجسم الكتلة.
+> 6. [`06_chroma_saturation.png`](file:///{chroma_path.replace(os.sep, '/')}): فحص خريطة التشبع، توازن القنوات، وإزالة أي انحراف لوني شاذ.
 
 ---
 
-## 4. الخطوة التفاعلية الموجهة بالبيانات (Dynamic Interactive Decision)
+## 3. صيغتا البرومبت التوليدي للـ Image Generator (Dual Generation Prompts)
+
+### الصيغة الأولى: JSON تفصيلي (Detailed JSON Specification)
+```json
+{json_spec_formatted}
+```
+
+### الصيغة الثانية: وصف عام دقيق (Accurate General Descriptive Master Prompt)
+> "{diag['masterDescriptivePrompt']}"
+
+> 💡 **ملاحظة**: يعمل البرومبت بتوافق تام مع **أي Image Generator Model**، ويُفضل ويُوصى بشدة باستخدامه داخل **Google Antigravity** لتطبيق التعديل المباشر عبر أداة `generate_image` ومحرك **GEMINI Nano Banana** دون إنشاء نسخ وسيطة ببايثون!
+
+---
+
+## 4. الخطوة التفاعلية الموجهة للمستخدم
 
 **ماذا تريد من تعديل؟**
-بناءً على المعطيات الضوئية المكتشفة في هذه الصورة تحديداً، إليك خيارات التعديل المقترحة:
-
-{options_rendered}
-
-💬 *يمكنك أيضاً طلب أي تعديل مخصص بحرية تامة، وسيتم فوراً توليد برومبت دقيق للغاية أو إنشاء الصورة المعدلة بالكامل!*
+💬 *حدد التعديل المطلوب أو الرؤية التي تريد تطبيقها، وسيتم توليدها فوراً وبدقة متناهية عبر Image Generator المباشر مستنداً إلى ما تم تعلمه من طبقات مجلد Layers/!*
 """
 
     with open(layer_md_path, "w", encoding="utf-8") as f:
@@ -398,9 +427,6 @@ def main():
             print(f"[MarwanDevSpace] 6 Analytical layers successfully extracted to: {report['layersDirectory']}")
             print(f"[MarwanDevSpace] Dynamic Layer.md report created: {report['layerMarkdownPath']}")
             print(f"\nOptical Profile: {diag['thermalDescription']} | Azimuth: {report['opticalMetrics']['lightingAngles']['azimuthDeg']}°")
-            print("\nKey Dynamic Findings:")
-            for f in diag["findings"][:3]:
-                print(f"  • {f}")
             print("\n[Interactive Decision Point]: ماذا تريد من تعديل؟")
             for opt in diag["tailoredOptions"]:
                 print(f"  - {opt}")

@@ -7,6 +7,18 @@ export interface LayerItem {
 }
 export interface DynamicDiagnostics {
     thermalDescription: string;
+    opticalPhysics: {
+        cctKelvin: number;
+        azimuthDeg: number;
+        elevationDeg: number;
+        hlCoveragePct: number;
+        shadowCoveragePct: number;
+        aoCoveragePct: number;
+        edgeRoughness: number;
+        saturationMean: number;
+    };
+    detailedJsonSpecification: Record<string, any>;
+    masterDescriptivePrompt: string;
     findings: string[];
     tailoredOptions: string[];
     universalImagePrompt: string;

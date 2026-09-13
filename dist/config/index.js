@@ -8,7 +8,7 @@ exports.ensureOutputDirectory = ensureOutputDirectory;
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 exports.config = {
-    outputCacheDir: path_1.default.resolve(process.env.OUTPUT_CACHE_DIR || "./generated_variations"),
+    outputCacheDir: path_1.default.resolve(process.env.OUTPUT_CACHE_DIR || "./Layers"),
     maxFileSizeBytes: 50 * 1024 * 1024, // 50 MB
     allowedExtensions: new Set([".png", ".jpg", ".jpeg"]),
     colorTempD65Kelvin: 6504.0,

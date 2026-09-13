@@ -64,9 +64,37 @@ export interface HarmonizeCompositeResult {
   details: Record<string, any>;
 }
 
+export interface DetailedJsonSpecification {
+  opticalPhysics: {
+    cctKelvin: number;
+    lightAzimuthDeg: number;
+    lightElevationDeg: number;
+    contrastRatio: number;
+    surfaceRoughnessIndex: number;
+    contactShadowIntensity: number;
+  };
+  layersAnalysis: {
+    highlights: string;
+    shadows: string;
+    ambientOcclusion: string;
+    edgesAndMicrotexture: string;
+    depthNormals: string;
+    chromaSaturation: string;
+  };
+  renderingDirectives: {
+    cameraLens: string;
+    lightingSetup: string;
+    subsurfaceScatter: string;
+    contactShadowGrounding: string;
+  };
+  userModificationIntent: string;
+}
+
 export interface DiffusionPromptResult {
   targetModel: string;
   userIntent: string;
+  detailedJsonSpecification: DetailedJsonSpecification;
+  masterDescriptivePrompt: string;
   enhancementPrompt: string;
   relightingPrompt: string;
   recommendedParameters: Record<string, any>;

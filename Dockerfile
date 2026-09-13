@@ -18,7 +18,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV OUTPUT_CACHE_DIR=/app/generated_variations
+ENV OUTPUT_CACHE_DIR=/app/Layers
 
 # Install only production dependencies
 COPY package*.json ./
@@ -28,7 +28,7 @@ RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
 
 # Create output cache directory and drop root privileges
-RUN mkdir -p /app/generated_variations && chown -R node:node /app
+RUN mkdir -p /app/Layers && chown -R node:node /app
 
 USER node
 

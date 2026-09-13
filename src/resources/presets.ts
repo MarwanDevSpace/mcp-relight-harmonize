@@ -1,5 +1,5 @@
 export const LIGHTING_PRESETS_REFERENCE = {
-  version: "1.0.4",
+  version: "1.0.5",
   target_generators: ["Universal Image Generator", "GEMINI Nano Banana"],
   presets: [
     {

@@ -52,7 +52,7 @@ export function createServer(): Server {
   const server = new Server(
     {
       name: "mcp-relight-harmonize",
-      version: "1.0.4",
+      version: "1.0.5",
     },
     {
       capabilities: {
@@ -197,7 +197,7 @@ export function createServer(): Server {
                 type: "string",
                 default: "",
                 description:
-                  "Destination folder for generated variation image files. If omitted, defaults to the server's configured cache directory ('./generated_variations').",
+                  "Destination folder for output files. If omitted, defaults to the server's configured cache directory ('./Layers'). Only 'Layers/' is used.",
               },
             },
             required: ["image_path"],
@@ -341,6 +341,8 @@ export function createServer(): Server {
                 properties: {
                   targetModel: { type: "string" },
                   userIntent: { type: "string" },
+                  detailedJsonSpecification: { type: "object", description: "Structured JSON optical specifications for layer-guided rendering." },
+                  masterDescriptivePrompt: { type: "string", description: "Accurate general descriptive master prompt for photorealistic generation." },
                   enhancementPrompt: { type: "string", description: "Prompt for micro-surface detail and lens clarity upgrade." },
                   relightingPrompt: { type: "string", description: "Prompt for physical relighting with angles, CCT, and contact shadows." },
                   recommendedParameters: { type: "object", description: "Calibrated diffusion settings (denoising 0.35-0.45, etc.)." },
@@ -349,6 +351,8 @@ export function createServer(): Server {
                 required: [
                   "targetModel",
                   "userIntent",
+                  "detailedJsonSpecification",
+                  "masterDescriptivePrompt",
                   "enhancementPrompt",
                   "relightingPrompt",
                   "recommendedParameters",

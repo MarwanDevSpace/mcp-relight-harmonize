@@ -22,8 +22,8 @@ function synthesizeDiffusionPromptTool(imagePath, userIntent = "", targetModel =
                 sources: [{ label: "Input Image", uri: `file://${imagePath}` }],
             },
             nextActions: [
-                `Paste the 'relightingPrompt' into your ${result.targetModel} generator.`,
-                `Apply suggested denoising strength: ${result.recommendedParameters.denoising_strength}.`,
+                `Execute directly via Image Generator (e.g. generate_image / GEMINI Nano Banana in Antigravity).`,
+                `Utilize 'detailedJsonSpecification' for structured parameter control and 'masterDescriptivePrompt' for photorealistic visual generation.`,
             ],
         });
     }

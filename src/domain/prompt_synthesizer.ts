@@ -1,4 +1,4 @@
-import { DiffusionPromptResult } from "../contracts/types";
+import { DiffusionPromptResult, DetailedJsonSpecification } from "../contracts/types";
 import { analyzeOpticalProfileImpl } from "./optical_analyzer";
 
 export function synthesizeDiffusionPromptImpl(
@@ -56,6 +56,41 @@ export function synthesizeDiffusionPromptImpl(
 
   const cleanIntent = userIntent.trim() ? `, ${userIntent.trim()}` : "";
 
+  // Detailed JSON Specification
+  const detailedJsonSpecification: DetailedJsonSpecification = {
+    opticalPhysics: {
+      cctKelvin: cct,
+      lightAzimuthDeg: azimuth,
+      lightElevationDeg: elevation,
+      contrastRatio: Math.round(contrast * 100) / 100,
+      surfaceRoughnessIndex: Math.round(profile.surfaceNormalVariation * 1000) / 1000,
+      contactShadowIntensity: contrast > 10 ? 0.75 : 0.45,
+    },
+    layersAnalysis: {
+      highlights: `${profile.contrastZones.specularHighlightsPct.toFixed(1)}% specular highlight distribution, ${contrastTerm}`,
+      shadows: `${profile.contrastZones.deepShadowsPct.toFixed(1)}% low-key shadow density, controlled falloff`,
+      ambientOcclusion: "contact anchoring line at the lowest ground intersection, eliminates floating appearance",
+      edgesAndMicrotexture: `Sobel gradient roughness ${profile.surfaceNormalVariation.toFixed(3)}, crisp micro-relief preservation`,
+      depthNormals: `dominant 3D light vector azimuth ${azimuth}° / elevation ${elevation}°, tangent normal vector alignment`,
+      chromaSaturation: `${cctTerm}, authentic spectral balance without unnatural color cast`,
+    },
+    renderingDirectives: {
+      cameraLens: "85mm prime lens f/2.0",
+      lightingSetup: `Calibrated studio rig: ${dirLabel} with ${cctTerm}`,
+      subsurfaceScatter: "Realistic material and skin subsurface light penetration",
+      contactShadowGrounding: "Physically-grounded base occlusion footprint",
+    },
+    userModificationIntent: userIntent || "Physical fidelity relighting and layer harmonization",
+  };
+
+  // Master Photorealistic Descriptive Text Prompt
+  const masterDescriptivePrompt =
+    `A master-quality studio photograph${cleanIntent}. Calibrated optical lighting at ${azimuth}° azimuth and ${elevation}° elevation, ` +
+    `${cctTerm}, ${contrastTerm}. Surface micro-relief preserved with authentic physical roughness (index ${profile.surfaceNormalVariation.toFixed(3)}), ` +
+    `deep ambient occlusion contact shadow firmly anchoring the base plane to prevent any floating appearance, ` +
+    `subtle rim lighting tracing outer silhouette, smooth photometric luminance falloff, authentic subsurface scattering, ` +
+    `captured on 85mm prime lens at f/2.0 with crystal-clear boundary sharpness.`;
+
   let enhancementPrompt = "";
   let relightingPrompt = "";
   let recommendedParameters: Record<string, any> = {};
@@ -106,6 +141,8 @@ export function synthesizeDiffusionPromptImpl(
   return {
     targetModel: normalizedModel,
     userIntent,
+    detailedJsonSpecification,
+    masterDescriptivePrompt,
     enhancementPrompt,
     relightingPrompt,
     recommendedParameters,

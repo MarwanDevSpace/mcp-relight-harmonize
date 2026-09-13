@@ -46,7 +46,7 @@ const StandardEnvelopeSchema = {
 function createServer() {
     const server = new index_js_1.Server({
         name: "mcp-relight-harmonize",
-        version: "1.0.4",
+        version: "1.0.5",
     }, {
         capabilities: {
             tools: {},
@@ -180,7 +180,7 @@ function createServer() {
                             output_dir: {
                                 type: "string",
                                 default: "",
-                                description: "Destination folder for generated variation image files. If omitted, defaults to the server's configured cache directory ('./generated_variations').",
+                                description: "Destination folder for output files. If omitted, defaults to the server's configured cache directory ('./Layers'). Only 'Layers/' is used.",
                             },
                         },
                         required: ["image_path"],
@@ -320,6 +320,8 @@ function createServer() {
                                 properties: {
                                     targetModel: { type: "string" },
                                     userIntent: { type: "string" },
+                                    detailedJsonSpecification: { type: "object", description: "Structured JSON optical specifications for layer-guided rendering." },
+                                    masterDescriptivePrompt: { type: "string", description: "Accurate general descriptive master prompt for photorealistic generation." },
                                     enhancementPrompt: { type: "string", description: "Prompt for micro-surface detail and lens clarity upgrade." },
                                     relightingPrompt: { type: "string", description: "Prompt for physical relighting with angles, CCT, and contact shadows." },
                                     recommendedParameters: { type: "object", description: "Calibrated diffusion settings (denoising 0.35-0.45, etc.)." },
@@ -328,6 +330,8 @@ function createServer() {
                                 required: [
                                     "targetModel",
                                     "userIntent",
+                                    "detailedJsonSpecification",
+                                    "masterDescriptivePrompt",
                                     "enhancementPrompt",
                                     "relightingPrompt",
                                     "recommendedParameters",

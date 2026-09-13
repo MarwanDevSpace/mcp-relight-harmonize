@@ -24,4 +24,4 @@ npm run verify
 ## 4. Configuration
 | Environment Variable | Default | Description |
 |---|---|---|
-| `OUTPUT_CACHE_DIR` | `./generated_variations` | Destination folder for relit variations and harmonized composites. |
+| `OUTPUT_CACHE_DIR` | `./Layers` | Destination folder for extracted layers and outputs. Only 'Layers/' is used. |

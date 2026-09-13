@@ -1,5 +1,5 @@
 node_modules/
-generated_variations/
+Layers/
 *.log
 .DS_Store
 dist/**/*.map

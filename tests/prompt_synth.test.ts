@@ -16,6 +16,10 @@ describe("Prompt Synthesizer (Universal & GEMINI Nano Banana)", () => {
     const res = synthesizeDiffusionPromptImpl(fixtures.bgPath, "dramatic warm sunset", "universal");
 
     expect(res.targetModel).toBe("Universal Image Generator");
+    expect(res.detailedJsonSpecification).toBeDefined();
+    expect(res.detailedJsonSpecification.opticalPhysics.cctKelvin).toBeDefined();
+    expect(res.detailedJsonSpecification.layersAnalysis.highlights).toBeDefined();
+    expect(res.masterDescriptivePrompt).toContain("85mm prime lens");
     expect(res.enhancementPrompt).toContain("85mm prime lens");
     expect(res.enhancementPrompt).toContain("subsurface scattering");
     expect(res.relightingPrompt).toContain("physically-based contact shadows");
