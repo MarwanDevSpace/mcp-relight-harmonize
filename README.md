@@ -46,6 +46,7 @@
 | `generate_relight_variations` | `image_path: string`, `target_lighting?: string`, `output_dir?: string` | 4 generated images (Ambient, Dramatic, Rim, Mood) + EV adjustments log. |
 | `harmonize_composite` | `foreground_path: string`, `background_path: string`, `blend_mode?: string` | Composited image with harmonized CCT, Reinhard color transfer, and contact shadow. |
 | `synthesize_diffusion_prompt` | `image_path: string`, `user_intent?: string`, `target_model?: "gpt_image" \| "nano_banana"` | Enhancement prompt, Relighting prompt, and calibrated generation parameters. |
+| `list_cached_variations` | `cache_dir?: string` | Inventory of generated relight variations and composite artifacts in the output cache. |
 
 ---
 

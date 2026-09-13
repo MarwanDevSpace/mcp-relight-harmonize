@@ -62,6 +62,11 @@ To craft targeted generative prompts:
 3. For **GPT Image**: outputs natural descriptive photography directives (85mm f/2.0, physical illumination).
 4. For **Nano Banana**: outputs dense optical tokens (roughness index, raytraced bounce, ground contact shadow, azimuth).
 
+### Workflow E: Output Cache Inspection
+To inspect or discover previously generated relight variations or composite outputs:
+1. Call tool `list_cached_variations({ cache_dir?: "<path>" })`.
+2. Inspect `files` list containing filename, full path, byte size, and last modified timestamp for all output artifacts.
+
 ---
 
 ## 3. Reference Documentation

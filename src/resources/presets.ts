@@ -1,5 +1,5 @@
 export const LIGHTING_PRESETS_REFERENCE = {
-  version: "1.0.0",
+  version: "1.0.2",
   target_generators: ["GPT Image", "Nano Banana"],
   presets: [
     {

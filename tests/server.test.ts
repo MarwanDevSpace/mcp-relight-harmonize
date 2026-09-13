@@ -6,6 +6,7 @@ import { analyzeOpticalProfileTool } from "../src/tools/analyze_optical";
 import { generateRelightVariationsTool } from "../src/tools/generate_relight";
 import { harmonizeCompositeTool } from "../src/tools/harmonize";
 import { synthesizeDiffusionPromptTool } from "../src/tools/synthesize_prompt";
+import { listCachedVariationsTool } from "../src/tools/list_cache";
 import { getPresetsJson } from "../src/resources/presets";
 
 describe("MCP Server Tool Contracts & Envelopes", () => {
@@ -57,6 +58,14 @@ describe("MCP Server Tool Contracts & Envelopes", () => {
     expect(env.data.targetModel).toBe("GPT Image");
     expect(env.data.enhancementPrompt).toBeDefined();
     expect(env.data.relightingPrompt).toBeDefined();
+  });
+
+  it("list_cached_variations lists files in cache directory", () => {
+    const env = listCachedVariationsTool();
+
+    expect(env.status).toBe("success");
+    expect(env.data.cacheDirectory).toBeDefined();
+    expect(Array.isArray(env.data.files)).toBe(true);
   });
 
   it("optical://presets resource returns valid JSON specification", () => {

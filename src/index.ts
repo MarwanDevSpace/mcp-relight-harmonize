@@ -9,8 +9,8 @@ async function main() {
 
   if (args.includes("--verify")) {
     console.log("[MarwanDevSpace] Verifying TypeScript mcp-relight-harmonize server...");
-    console.log("Server 'mcp-relight-harmonize' v1.0.0 initialized.");
-    console.log("Registered tools: ['analyze_optical_profile', 'generate_relight_variations', 'harmonize_composite', 'synthesize_diffusion_prompt']");
+    console.log("Server 'mcp-relight-harmonize' v1.0.2 initialized.");
+    console.log("Registered tools: ['analyze_optical_profile', 'generate_relight_variations', 'harmonize_composite', 'synthesize_diffusion_prompt', 'list_cached_variations']");
     console.log("Registered resources: ['optical://presets']");
     console.log("Output cache directory:", ensureOutputDirectory());
     console.log("[MarwanDevSpace] Server health verification passed (Exit code 0).");

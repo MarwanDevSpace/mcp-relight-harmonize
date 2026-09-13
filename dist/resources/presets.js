@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LIGHTING_PRESETS_REFERENCE = void 0;
 exports.getPresetsJson = getPresetsJson;
 exports.LIGHTING_PRESETS_REFERENCE = {
-    version: "1.0.0",
+    version: "1.0.2",
     target_generators: ["GPT Image", "Nano Banana"],
     presets: [
         {
