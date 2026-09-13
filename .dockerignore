@@ -1,0 +1,9 @@
+node_modules
+generated_variations
+dist
+.git
+.gitignore
+.github
+tests
+temp_test.png
+*.log

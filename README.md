@@ -1,5 +1,10 @@
 # mcp-relight-harmonize
 
+[![npm version](https://img.shields.io/npm/v/mcp-relight-harmonize.svg)](https://www.npmjs.com/package/mcp-relight-harmonize)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/MarwanDevSpace/mcp-relight-harmonize/actions/workflows/ci.yml/badge.svg)](https://github.com/MarwanDevSpace/mcp-relight-harmonize/actions)
+[![Glama](https://img.shields.io/badge/Glama-Listed-24b47e.svg)](https://glama.ai/mcp/servers/MarwanDevSpace/mcp-relight-harmonize)
+
 **mcp-relight-harmonize** is an enterprise-grade TypeScript Model Context Protocol (MCP) server and Antigravity Skill engineered by **MarwanDevSpace**. It delivers local optical profiling, physically-grounded relighting variations, contact-aware composite harmonization, and precision prompt synthesis specifically targeting **GPT Image** (DALL-E 3 / GPT-4o) and **Nano Banana**.
 
 ---
@@ -90,6 +95,15 @@ Or via npx when published:
     }
   }
 }
+```
+
+### 3. Docker Deployment (Glama Standard)
+```bash
+# Build image locally
+docker build -t mcp-relight-harmonize .
+
+# Run container over stdio
+docker run -i --rm mcp-relight-harmonize
 ```
 
 ---

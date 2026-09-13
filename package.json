@@ -1,6 +1,6 @@
 {
   "name": "mcp-relight-harmonize",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Professional TypeScript Model Context Protocol (MCP) server & agent skill for optical profiling, physical relighting, composite harmonization, and diffusion prompt synthesis (GPT Image & Nano Banana).",
   "author": "MarwanDevSpace <dev@marwandevspace.io>",
   "license": "MIT",
@@ -53,6 +53,8 @@
   "files": [
     "dist",
     "package.json",
+    "LICENSE",
+    "glama.json",
     "MASTER.md",
     "mcp_config.json",
     ".agents",
